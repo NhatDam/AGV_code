@@ -18,9 +18,9 @@ void check() {
 void straight() {
   // Serial.println("straight");
   digitalWrite(FR1, 1);
-  analogWrite(SV1, 50);
+  analogWrite(SV1, 255);
   digitalWrite(FR2, 0);
-  analogWrite(SV2, 50);
+  analogWrite(SV2, 255);
 }
 
 void back() {
