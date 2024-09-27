@@ -1,15 +1,16 @@
 #include "Arduino.h"
 
 //Declare variables for speed reading
-const int speedPinleft = 21; 
-const int speedPinright = 20; 
-unsigned long lastTime = 0;
-volatile unsigned long pulseCountleft = 0;
-volatile unsigned long pulseCountright = 0;
-volatile unsigned long last_pulse_left = 0;
-volatile unsigned long last_pulse_right = 0;
-volatile unsigned long pulseDurationLeft = 0;
-volatile unsigned long pulseDurationRight = 0;
+extern const int speedPinleft ; 
+extern const int speedPinright ; 
+extern long lastTime ;
+extern volatile unsigned long pulseCountleft ;
+extern volatile unsigned long pulseCountright ;
+extern volatile unsigned long last_pulse_left ;
+extern volatile unsigned long last_pulse_right;
+extern volatile unsigned long pulseDurationLeft;
+extern volatile unsigned long pulseDurationRight;
+
 
 // the motor has 5 pole pairs and 3 Hall sensor phases
 const int motorPolePairs = 5;

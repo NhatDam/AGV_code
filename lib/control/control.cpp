@@ -1,5 +1,7 @@
-#include <control.h>
-
+#include "control.h"
+float speed_left = 0;
+float speed_right =0;
+int state = 0;
 void check() {
   bitWrite(state, 0, digitalRead(3));
   bitWrite(state, 1, digitalRead(6));

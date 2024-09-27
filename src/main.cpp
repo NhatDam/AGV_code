@@ -1,5 +1,7 @@
-#include <Follow_line.h>
+#include "Follow_line.h"
 #include "Speed_read.h"
+#include "GPIO.h"
+#include "control.h"
 
 float voltageToRPM(float voltage) {
   // 5V corresponds to 3000 RPM:
@@ -27,37 +29,31 @@ void setup() {
   pinMode(FR2, OUTPUT);
   pinMode(SV1, OUTPUT);
   pinMode(SV2, OUTPUT);
-  pinMode(3, INPUT);
-  pinMode(6, INPUT);
-  pinMode(7, INPUT);
+  pinMode(3, INPUT_PULLUP);
+  pinMode(6, INPUT_PULLUP);
+  pinMode(7, INPUT_PULLUP);
   pinMode(A1, INPUT);
 }
 
 void loop() {
-  static unsigned long lastTime = 0;
-  unsigned long currentTime = millis();
-  
-   // Convert the analog value to voltage (assuming a 5V reference)
-  float voltage_left = speed_left * (5.0 / 255);
-  float voltage_right = speed_left * (5.0 / 255);
   check();
   sensor_position();
   // Motor control logic
   Serial.println(state);
   switch (state) {
-    case 7:
+    case 7: //111
       stopp();
       break;
-    case 6:
+    case 6://110
       straight();
       break;
-    case 5:
+    case 5://101
       back();
       break;
-    case 4:
+    case 4://100
       left();
       break;
-    case 3:
+    case 3://011
       right();
       break;
     case 9:

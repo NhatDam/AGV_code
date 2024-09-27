@@ -1,5 +1,13 @@
 #include <Speed_read.h>
-
+const int speedPinleft = 21; 
+const int speedPinright = 20; 
+long lastTime = 0;
+volatile unsigned long pulseCountleft = 0;
+volatile unsigned long pulseCountright = 0;
+volatile unsigned long last_pulse_left = 0;
+volatile unsigned long last_pulse_right = 0;
+volatile unsigned long pulseDurationLeft = 0;
+volatile unsigned long pulseDurationRight = 0;
 void countLeftPulses() {
   unsigned long currentTimeleft = micros();
   if (currentTimeleft - last_pulse_left > 1000) { // Debounce: ignore pulses shorter than 1000 microseconds

@@ -1,6 +1,6 @@
 #include "GPIO.h"
-float speed_left = 0;
-float speed_right = 0;
+extern float speed_left ;
+extern float speed_right ;
 
 void straight();
 void back();
