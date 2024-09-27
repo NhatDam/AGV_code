@@ -1,6 +1,16 @@
 #include <Follow_line.h>
 #include "Speed_read.h"
 
+float voltageToRPM(float voltage) {
+  // 5V corresponds to 3000 RPM:
+  float conversionFactor = 3000.0 / 5.0;
+
+  // Convert the voltage to RPM
+  float rpm = voltage * conversionFactor;
+
+  return rpm;
+}
+
 void setup() {
   Serial.begin(9600);
   for (int a = 0; a < 16; a++) {
@@ -26,11 +36,15 @@ void setup() {
 void loop() {
   static unsigned long lastTime = 0;
   unsigned long currentTime = millis();
-
-  print_RPM(currentTime);
   
+   // Convert the analog value to voltage (assuming a 5V reference)
+  float voltage_left = speed_left * (5.0 / 255);
+  float voltage_right = speed_left * (5.0 / 255);
+  check();
+  sensor_position();
   // Motor control logic
-  switch (6) {
+  Serial.println(state);
+  switch (state) {
     case 7:
       stopp();
       break;
@@ -46,7 +60,7 @@ void loop() {
     case 3:
       right();
       break;
-    case 0:
+    case 9:
       follow_line();
       break;
     default:
