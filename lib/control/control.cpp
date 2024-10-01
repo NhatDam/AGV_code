@@ -37,6 +37,14 @@ speed_left = speed_right = 0;
 }
 
 void set_motor (int direction_left, float speed_left, int direction_right, float speed_right) {
+  if(speed_right > 255)
+  {
+    speed_right = 255;
+  }
+  if(speed_left>255)
+  {
+    speed_left = 255;
+  }
   digitalWrite(FR1, direction_right);
   analogWrite(SV1, speed_right);
   digitalWrite(FR2, direction_left);

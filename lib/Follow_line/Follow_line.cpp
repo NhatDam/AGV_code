@@ -15,13 +15,14 @@ void follow_line(unsigned long currentTime) {
 
 void PID(unsigned long currentTime) {
   float Kp = 0.15; //old value 0.08
-  float Kd = 0.0005; //old value 0.0001
-  float Ki = 0.0001;
+  float Kd = 0.01; //old value 0.0006
+  float Ki = 0.001;//Higher makes oscilation
   unsigned long timeprev = 0;
   error = sensor_position();
-  float powerDifference = Kp * error + Kd * (error - lastError)/((currentTime-timeprev)/1.0e6) + Ki*(integral+error*((currentTime-timeprev)/1.0e6));
+  // float powerDifference = Kp * error + Kd * (error - lastError)/((currentTime-timeprev)/1.0e6) + Ki*(integral+error*((currentTime-timeprev)/1.0e6));
+  float powerDifference = Kp * error + Kd * (error - lastError) + Ki*(integral+error);
   lastError = error;
-  timeprev = currentTime;
+  // timeprev = currentTime;
   powerDifference = constrain(powerDifference, -maxSpeed, maxSpeed);
   //Serial.print(powerDifference);
   //Serial.print("   ");
