@@ -42,7 +42,7 @@ void loop() {
   print_RPM(curTime);
   // Motor control logic
   // Serial.println(state);
-  switch (state) {
+  switch (9) {
     case 7: //111
       stopp();
       break;
@@ -59,7 +59,7 @@ void loop() {
       right();
       break;
     case 9:
-      follow_line();
+      follow_line(curTime);
       break;
     default:
       stopp();

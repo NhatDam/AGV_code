@@ -4,7 +4,7 @@ int FR2 = 45;
 int SV1 = 11;
 int SV2 = 10;
 int position_value = 0;
-int error, lastError;
+float error, lastError;
 int maxSpeed = 70;
 int rotateSpeed = 25;
 int count1 = 0;

@@ -1,24 +1,27 @@
 #include <Follow_line.h>
-
-void follow_line() {
+float integral = 0;
+void follow_line(unsigned long currentTime) {
   switch (count_on())
   {
   case 0:
     stopp ();
     break;
   default:
-    PID ();
+    PID (currentTime);
   }
   
   
 }
 
-void PID() {
+void PID(unsigned long currentTime) {
   float Kp = 0.15; //old value 0.08
   float Kd = 0.0005; //old value 0.0001
+  float Ki = 0.0001;
+  unsigned long timeprev = 0;
   error = sensor_position();
-  float powerDifference = Kp * error + Kd * (error - lastError);
+  float powerDifference = Kp * error + Kd * (error - lastError)/((currentTime-timeprev)/1.0e6) + Ki*(integral+error*((currentTime-timeprev)/1.0e6));
   lastError = error;
+  timeprev = currentTime;
   powerDifference = constrain(powerDifference, -maxSpeed, maxSpeed);
   //Serial.print(powerDifference);
   //Serial.print("   ");
@@ -78,6 +81,7 @@ int sensor_position() {
    
    
   position_value = 700 - (numer / denom);
+  Serial.print("Position value: ");
   Serial.println (position_value);
   return position_value;
 }

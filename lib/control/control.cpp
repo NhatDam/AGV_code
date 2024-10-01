@@ -9,7 +9,7 @@ void check() {
 }
 
 void straight() {
-  speed_left = speed_right = 255;
+  speed_left = speed_right = 80;
   set_motor(0, speed_left, 1, speed_right);
 }
 

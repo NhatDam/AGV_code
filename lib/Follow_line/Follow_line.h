@@ -1,8 +1,8 @@
 #include "control.h"
 
-
-void follow_line();
-void PID ();
+extern float integral;
+void follow_line(unsigned long currentTime);
+void PID (unsigned long currentTime);
 int count_on ();
 int sensor_position();
 

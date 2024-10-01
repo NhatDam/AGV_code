@@ -12,7 +12,7 @@ extern byte input_value; // store the input value
 extern int count1;
 extern const int sensorweight[];
 extern int position_value;
-extern int error, lastError;
+extern float error, lastError;
 extern int maxSpeed;
 extern int rotateSpeed;
 
