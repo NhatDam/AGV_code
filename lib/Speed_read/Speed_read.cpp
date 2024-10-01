@@ -2,8 +2,8 @@
 const int speedPinleft = 21; 
 const int speedPinright = 20; 
 long lastTime = 0;
-volatile unsigned long pulseCountleft = 0;
-volatile unsigned long pulseCountright = 0;
+// volatile unsigned long pulseCountleft = 0;
+// volatile unsigned long pulseCountright = 0;
 volatile unsigned long last_pulse_left = 0;
 volatile unsigned long last_pulse_right = 0;
 volatile unsigned long pulseDurationLeft = 0;
@@ -13,7 +13,7 @@ void countLeftPulses() {
   if (currentTimeleft - last_pulse_left > 1000) { // Debounce: ignore pulses shorter than 1000 microseconds
     pulseDurationLeft = currentTimeleft - last_pulse_left;
     last_pulse_left = currentTimeleft;
-    pulseCountleft++;
+    // pulseCountleft++;
   }
 }
 
@@ -22,7 +22,7 @@ void countRightPulses() {
   if (currentTimeright - last_pulse_right > 1000) { // Debounce: ignore pulses shorter than 1000 microseconds
     pulseDurationRight = currentTimeright - last_pulse_right;
     last_pulse_right = currentTimeright;
-    pulseCountright++;
+    // pulseCountright++;
   }
 }
 
@@ -56,7 +56,7 @@ void print_RPM(unsigned long currentTime){
     }
 
     // Reset pulse counts for the next interval
-    pulseCountleft = 0;
-    pulseCountright = 0;
+    // pulseCountleft = 0;
+    // pulseCountright = 0;
   }
 }

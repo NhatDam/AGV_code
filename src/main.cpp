@@ -36,10 +36,12 @@ void setup() {
 }
 
 void loop() {
+  unsigned long curTime = micros();
   check();
   sensor_position();
+  print_RPM(curTime);
   // Motor control logic
-  Serial.println(state);
+  // Serial.println(state);
   switch (state) {
     case 7: //111
       stopp();
