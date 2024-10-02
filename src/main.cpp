@@ -3,6 +3,8 @@
 #include "GPIO.h"
 #include "control.h"
 
+
+
 float voltageToRPM(float voltage) {
   // 5V corresponds to 3000 RPM:
   float conversionFactor = 3000.0 / 5.0;
@@ -36,11 +38,16 @@ void setup() {
 }
 
 void loop() {
+  t = micros();  // Get current time in milliseconds
+  deltaT = ((float)(t - tprev))/1.0e6;
+  tprev=t;
+  print_RPM();
   check();
   sensor_position();
-  // Motor control logic
-  Serial.println(state);
-  switch (state) {
+  // print_RPM(micros());
+  // // Motor control logic
+  // Serial.println(state);
+  switch (6) {
     case 7: //111
       stopp();
       break;

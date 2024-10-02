@@ -25,10 +25,8 @@ void PID() {
   // Serial.println("PID");
   if (powerDifference < 0) {
     set_motor(0, maxSpeed - powerDifference, 1, maxSpeed);
-    //Serial.println("PID Trai");
   } else {
     set_motor(0, maxSpeed, 1, maxSpeed + powerDifference);
-    //Serial.println("PID Phai");
   }
 }
 
@@ -73,11 +71,7 @@ int sensor_position() {
     // Serial.print(numer);
     // Serial.print("   ");
     // Serial.println(denom);
-  } // sensor array
-   
-   
-   
+  } // sensor array  
   position_value = 700 - (numer / denom);
-  Serial.println (position_value);
   return position_value;
 }
