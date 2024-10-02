@@ -5,7 +5,7 @@ int SV1 = 11;
 int SV2 = 10;
 int position_value = 0;
 float error, lastError;
-int maxSpeed = 70; //min = 15 && max = 70
+int maxSpeed = 60; //min = 15 && max = 70
 int rotateSpeed = 25;
 int count1 = 0;
 byte input_value = 0b0000000000000000;

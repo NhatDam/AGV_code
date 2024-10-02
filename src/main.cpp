@@ -37,32 +37,35 @@ void setup() {
 
 void loop() {
   unsigned long curTime = micros();
-  check();
-  sensor_position();
-  print_RPM(curTime);
-  // Motor control logic
-  // Serial.println(state);
-  switch (9) {
-    case 7: //111
-      stopp();
-      break;
-    case 6://110
-      straight();
-      break;
-    case 5://101
-      back();
-      break;
-    case 4://100
-      left();
-      break;
-    case 3://011
-      right();
-      break;
-    case 9:
-      follow_line(curTime);
-      break;
-    default:
-      stopp();
-      break;
-  }
+  if(curTime>=2e6)
+  {
+    check();
+    sensor_position();
+    print_RPM(curTime);
+    // Motor control logic
+    // Serial.println(state);
+    switch (state) {
+      case 7: //111
+        stopp();
+        break;
+      case 6://110
+        straight();
+        break;
+      case 5://101
+        back();
+        break;
+      case 4://100
+        left();
+        break;
+      case 3://011
+        right();
+        break;
+      case 9:
+        follow_line(curTime);
+        break;
+      default:
+        stopp();
+        break;
+    }
+}
 }

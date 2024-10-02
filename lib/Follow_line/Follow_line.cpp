@@ -15,7 +15,7 @@ void follow_line(unsigned long currentTime) {
 
 void PID(unsigned long currentTime) {
   float Kp = 0.15; //old value 0.08
-  float Kd = 0.01; //old value 0.0006
+  float Kd = 0.1; //old value 0.0006
   float Ki = 0.001;//Higher makes oscilation
   unsigned long timeprev = 0;
   error = sensor_position();
