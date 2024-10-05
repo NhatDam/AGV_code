@@ -4,17 +4,6 @@
 #include "control.h"
 
 
-
-float voltageToRPM(float voltage) {
-  // 5V corresponds to 3000 RPM:
-  float conversionFactor = 3000.0 / 5.0;
-
-  // Convert the voltage to RPM
-  float rpm = voltage * conversionFactor;
-
-  return rpm;
-}
-
 void setup() {
   Serial.begin(9600);
   for (int a = 0; a < 16; a++) {
@@ -38,15 +27,17 @@ void setup() {
 }
 
 void loop() {
-  t = micros();  // Get current time in milliseconds
+  t = micros();  // Get current time in uS
+  // Calculating elapsed time deltaT
   deltaT = ((float)(t - tprev))/1.0e6;
   tprev=t;
+
+  // Print the output RPM from two motors
   print_RPM();
+  // Check the input commands
   check();
-  sensor_position();
-  // print_RPM(micros());
-  // // Motor control logic
-  // Serial.println(state);
+
+  
   switch (6) {
     case 7: //111
       stopp();

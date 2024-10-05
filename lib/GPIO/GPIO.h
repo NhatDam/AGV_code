@@ -16,6 +16,3 @@ extern int error, lastError;
 extern int maxSpeed;
 extern int rotateSpeed;
 
-
-#define LEFT 69
-#define RIGHT 420

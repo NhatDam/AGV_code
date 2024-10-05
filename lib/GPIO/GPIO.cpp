@@ -1,6 +1,10 @@
 #include "GPIO.h"
+// '1' is RIGHT motor and '2' is LEFT motor
+// Define motor direction control pins
 int FR1 = 44;
 int FR2 = 45;
+
+// Define motor speed control pins
 int SV1 = 11;
 int SV2 = 10;
 int position_value = 0;
@@ -9,6 +13,7 @@ int maxSpeed = 70;
 int rotateSpeed = 25;
 int count1 = 0;
 byte input_value = 0b0000000000000000;
+// Define the input pins for magnetic line sensor
 int input_pin[] = {
   A15,
   A14,
@@ -27,8 +32,10 @@ int input_pin[] = {
   5,
   2
 };
+
+// Divide 16 bits of input from the magnetic sensor into 16 different equal-distributed values starting from 0 to 1500
 const int sensorweight[] = {
-  0,//leftmost
+  0, // leftmost the sensor
   100,
   200,
   300,
@@ -43,5 +50,5 @@ const int sensorweight[] = {
   1200,
   1300,
   1400,
-  1500 //rightmost
+  1500 // rightmost of the sensor
 };
