@@ -9,9 +9,9 @@ float deltaT = 0;
 long lastTime = 0;
 
 // Define parameters to calculate the speed
-volatile unsigned long countL = 0, countL_i =0, countR = 0, countR_i =0;
+volatile long countL = 0, countL_i =0, countR = 0, countR_i =0;
 float speed_actual_left = 0, speed_actual_right= 0, raw_speed_left= 0, raw_speed_right= 0;
-volatile unsigned long countL_prev=0, countR_prev=0;
+volatile long countL_prev=0, countR_prev=0;
 
 // Define function to count pulses from left motor driver
 void countLeftPulses() {

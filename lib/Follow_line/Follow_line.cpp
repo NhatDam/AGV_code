@@ -22,8 +22,9 @@ void PID() {
   float Ki = 0.001;
   // Extract the error from the position difference of magnetic line
   error = sensor_position();
+  integral = integral + error;
   // Conduct PID algorithm 
-  float powerDifference = Kp * error + Kd * (error - lastError) + Ki*(integral + error);
+  float powerDifference = Kp * error + Kd * (error - lastError) + Ki*(integral);
   lastError = error;
   powerDifference = constrain(powerDifference, -maxSpeed, maxSpeed);
   //Serial.print(powerDifference);
