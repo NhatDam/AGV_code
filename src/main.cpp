@@ -38,7 +38,7 @@ void loop() {
   check();
 
   
-  switch (6) {
+  switch (9) {
     case 7: //111
       stopp();
       break;

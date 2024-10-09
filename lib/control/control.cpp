@@ -11,25 +11,25 @@ void check() {
 
 //Function that make the robot goes straight
 void straight() {
-  speed_left = speed_right = 80;
+  speed_left = speed_right = 0.1; // m/s
   set_motor(0, speed_left, 1, speed_right);
 }
 
 //Function that make the robot goes backward
 void back() {
-  speed_left = speed_right = 80;
+  speed_left = speed_right = 0.125; // m/s
   set_motor(1, speed_left, 0, speed_right);
 }
 
 //Function that make the robot rotates right
 void right() {
-  speed_left = speed_right = 80;
+  speed_left = speed_right = 0.06;
   set_motor(0, speed_left, 0, speed_right);
 }
 
 //Fucntion that make the robot turns left
 void left() {
-  speed_left = speed_right = 80;
+  speed_left = speed_right = 0.06;
   set_motor(1, speed_left, 1, speed_right);
 }
 
@@ -41,10 +41,22 @@ speed_left = speed_right = 0;
 
 // Setting up the input direction and speed of two motors
 void set_motor (int direction_left, float speed_left, int direction_right, float speed_right) {
+  // float speedL = speed_left/0.125*255;
+  // float speedR = speed_right/0.125*255;
+  if(speed_left > 255)
+  {
+    speed_left = 255;
+  }
+  if(speed_right > 255)
+  {
+    speed_right = 255;
+  }
   digitalWrite(FR1, direction_right);
   analogWrite(SV1, speed_right);
+  Serial.println(speed_right);
   digitalWrite(FR2, direction_left);
   analogWrite(SV2, speed_left);
+  Serial.println(speed_left);
 }
 
 

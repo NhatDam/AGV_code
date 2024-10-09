@@ -17,24 +17,34 @@ void follow_line() {
 void PID() {
   // Define PID parameters
   float integral = 0;
-  float Kp = 0.15; //old value 0.08
+  float Kp = 0.18; //old value 0.08
   float Kd = 0.1; //old value 0.0001
   float Ki = 0.001;
   // Extract the error from the position difference of magnetic line
   error = sensor_position();
+  Serial.println(error);
   integral = integral + error;
   // Conduct PID algorithm 
-  float powerDifference = Kp * error + Kd * (error - lastError) + Ki*(integral);
+  float powerDifference = Kp * error + Kd * (error - lastError) + Ki*integral;
   lastError = error;
-  powerDifference = constrain(powerDifference, -maxSpeed, maxSpeed);
-  //Serial.print(powerDifference);
+  // powerDifference = constrain(powerDifference, -maxSpeed, maxSpeed);
+  // if(control_sig>maxSpeed)
+  // {
+  //   control_sig = maxSpeed;
+  // }
+  // else if(control_sig<-maxSpeed)
+  // {
+  //   control_sig = -maxSpeed;
+  // }
+  
+  
   //Serial.print("   ");
   // Serial.println("PID");
   if (powerDifference < 0) {
     set_motor(0, maxSpeed - powerDifference, 1, maxSpeed);
   } else {
     set_motor(0, maxSpeed, 1, maxSpeed + powerDifference);
-  }
+}
 }
 
 // Count the sensor bits that is ON 
