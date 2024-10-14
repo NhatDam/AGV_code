@@ -1,7 +1,7 @@
 #include <Speed_read.h>
 // Pins that attached to motor drivers to read speed
-const int speedPinleft = 21; 
-const int speedPinright = 20; 
+const int speedPinleft = 3; 
+const int speedPinright = 2; 
 
 // Define parameters to calculate time elapsed 
 unsigned long t, tprev = 0;
@@ -15,28 +15,28 @@ volatile long countL_prev=0, countR_prev=0;
 
 // Define function to count pulses from left motor driver
 void countLeftPulses() {
-  int L = digitalRead(speedPinleft);
-    if (L>0)
-    {
+  // int L = digitalRead(speedPinleft);
+  //   if (L>0)
+  //   {
       countL_i++;
-    }
-    else
-    {
-      countL_i--;
-    }
+    // }
+    // else
+    // {
+    //   countL_i--;
+    // }
 }
 
 // Define function to count pulses from right motor driver
 void countRightPulses() {
-  int R = digitalRead(speedPinright);
-    if (R>0)
-    {
+  // int R = digitalRead(speedPinright);
+  //   if (R>0)
+  //   {
       countR_i++;
-    }
-    else
-    {
-      countR_i--;
-    }
+    // }
+    // else
+    // {
+    //   countR_i--;
+    // }
 }
 
 
@@ -51,8 +51,12 @@ void print_RPM(){
   
   // Calculate the speed in Counts/second
   raw_speed_left = (countL-countL_prev)/deltaT;
+  Serial.print("Left Motor C/s: ");
+  Serial.println(raw_speed_left,3);
   countL_prev=countL;
   raw_speed_right = (countR-countR_prev)/deltaT;
+  Serial.print("Right Motor C/s: ");
+  Serial.println(raw_speed_right,3);
   countR_prev=countR;
 
   //Convert the speed to Revolutions/minute and print it out
@@ -72,5 +76,5 @@ void print_RPM(){
   Serial.print("Right Motor RPM: ");
   Serial.println(speed_actual_right,3);
   Serial.println("-------------------");
-
+  delay(500);
 }

@@ -9,7 +9,7 @@ int SV1 = 11;
 int SV2 = 10;
 int position_value = 0;
 int error, lastError;
-int maxSpeed = 50;
+int maxSpeed = 45;
 int rotateSpeed = 25;
 int count1 = 0;
 byte input_value = 0b0000000000000000;
@@ -30,7 +30,7 @@ int input_pin[] = {
   A3,
   4,
   5,
-  2
+  6
 };
 
 // Divide 16 bits of input from the magnetic sensor into 16 different equal-distributed values starting from 0 to 1500

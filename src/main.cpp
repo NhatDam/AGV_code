@@ -13,16 +13,16 @@ void setup() {
   pinMode(speedPinleft, INPUT);
   pinMode(speedPinright, INPUT);
 
-  attachInterrupt(digitalPinToInterrupt(speedPinleft), countLeftPulses, RISING);
+  attachInterrupt(digitalPinToInterrupt(speedPinleft), countLeftPulses,RISING);
   attachInterrupt(digitalPinToInterrupt(speedPinright), countRightPulses, RISING);
 
   pinMode(FR1, OUTPUT);
   pinMode(FR2, OUTPUT);
   pinMode(SV1, OUTPUT);
   pinMode(SV2, OUTPUT);
-  pinMode(3, INPUT_PULLUP);
-  pinMode(6, INPUT_PULLUP);
-  pinMode(7, INPUT_PULLUP);
+  // pinMode(3, INPUT_PULLUP);
+  // pinMode(6, INPUT_PULLUP);
+  // pinMode(7, INPUT_PULLUP);
   pinMode(A1, INPUT);
 }
 
@@ -38,7 +38,7 @@ void loop() {
   check();
 
   
-  switch (9) {
+  switch (6) {
     case 7: //111
       stopp();
       break;
