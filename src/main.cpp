@@ -2,7 +2,7 @@
 #include "Speed_read.h"
 #include "GPIO.h"
 #include "control.h"
-
+#include "SoC.h"
 
 void setup() {
   Serial.begin(9600);
@@ -33,12 +33,12 @@ void loop() {
   print_RPM();
   // Check the input commands
   
-  switch (5) {
+  switch (6) {
     case 7: //111
       stopp();
       break;
     case 6://110
-      straight(0.012);
+      straight(0.125);
       break;
     case 5://101
       back(0.1);
