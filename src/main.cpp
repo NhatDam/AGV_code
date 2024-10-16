@@ -20,15 +20,13 @@ void setup() {
   pinMode(FR2, OUTPUT);
   pinMode(SV1, OUTPUT);
   pinMode(SV2, OUTPUT);
-  // pinMode(3, INPUT_PULLUP);
-  // pinMode(6, INPUT_PULLUP);
-  // pinMode(7, INPUT_PULLUP);
   pinMode(A1, INPUT);
 }
 
 void loop() {
-  t = micros();  // Get current time in uS
-  // Calculating elapsed time deltaT
+  // Get current time in uS
+  t = micros();  
+  // Calculating elapsed time deltaT in S
   deltaT = ((float)(t - tprev))/1.0e6;
   tprev=t;
 
@@ -38,7 +36,7 @@ void loop() {
   check();
 
   
-  switch (6) {
+  switch (9) {
     case 7: //111
       stopp();
       break;
