@@ -15,28 +15,12 @@ volatile long countL_prev=0, countR_prev=0;
 
 // Define function to count pulses from left motor driver
 void countLeftPulses() {
-  // int L = digitalRead(speedPinleft);
-  //   if (L>0)
-  //   {
       countL_i++;
-    // }
-    // else
-    // {
-    //   countL_i--;
-    // }
 }
 
 // Define function to count pulses from right motor driver
 void countRightPulses() {
-  // int R = digitalRead(speedPinright);
-  //   if (R>0)
-  //   {
       countR_i++;
-    // }
-    // else
-    // {
-    //   countR_i--;
-    // }
 }
 
 

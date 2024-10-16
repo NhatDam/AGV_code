@@ -1,3 +1,6 @@
+#ifndef AGV_GPIO_H
+#define AGV_GPIO_H
+
 #include "Arduino.h"
 // 1 is right and 2 is left looking at the AGV rear
 extern int FR1;
@@ -16,3 +19,4 @@ extern int error, lastError;
 extern int maxSpeed;
 extern int rotateSpeed;
 
+#endif

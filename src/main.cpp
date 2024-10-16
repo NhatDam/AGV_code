@@ -20,7 +20,6 @@ void setup() {
   pinMode(FR2, OUTPUT);
   pinMode(SV1, OUTPUT);
   pinMode(SV2, OUTPUT);
-  pinMode(A1, INPUT);
 }
 
 void loop() {
@@ -33,8 +32,6 @@ void loop() {
   // Print the output RPM from two motors
   print_RPM();
   // Check the input commands
-  check();
-
   
   switch (5) {
     case 7: //111

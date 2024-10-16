@@ -26,24 +26,12 @@ void PID() {
   // Conduct PID algorithm 
   float powerDifference = Kp * error + Kd * (error - lastError) + Ki*integral;
   lastError = error;
-  // powerDifference = constrain(powerDifference, -maxSpeed, maxSpeed);
-  // if(control_sig>maxSpeed)
-  // {
-  //   control_sig = maxSpeed;
-  // }
-  // else if(control_sig<-maxSpeed)
-  // {
-  //   control_sig = -maxSpeed;
-  // }
-  
-  
-  //Serial.print("   ");
-  // Serial.println("PID");
+
   if (powerDifference < 0) {
     set_motor(0, maxSpeed - powerDifference, 1, maxSpeed);
   } else {
     set_motor(0, maxSpeed, 1, maxSpeed + powerDifference);
-}
+  }
 }
 
 // Count the sensor bits that is ON 
@@ -87,10 +75,7 @@ int sensor_position() {
   for (int i = 0; i < 16; i++) {
     numer += input_array[i] * sensorweight[i]; //  Calculates the position of the sensor array over the line by weighted average method. The weights
     denom += input_array[i]; //  are assigned as per sensorWeight[]
-    // Serial.print(numer);
-    // Serial.print("   ");
-    // Serial.println(denom);
-  } // sensor array  
+  }  
   position_value = 700 - (numer / denom); // Leftmost is -800 and rightmost is 700
   return position_value;
 }
