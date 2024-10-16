@@ -36,21 +36,21 @@ void loop() {
   check();
 
   
-  switch (9) {
+  switch (5) {
     case 7: //111
       stopp();
       break;
     case 6://110
-      straight();
+      straight(0.012);
       break;
     case 5://101
-      back();
+      back(0.1);
       break;
     case 4://100
-      left();
+      left(0.034);
       break;
     case 3://011
-      right();
+      right(0.089);
       break;
     case 9:
       follow_line();

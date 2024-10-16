@@ -76,5 +76,5 @@ void print_RPM(){
   Serial.print("Right Motor RPM: ");
   Serial.println(speed_actual_right,3);
   Serial.println("-------------------");
-  delay(500);
+  
 }

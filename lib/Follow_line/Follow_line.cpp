@@ -17,9 +17,9 @@ void follow_line() {
 void PID() {
   // Define PID parameters
   float integral = 0;
-  float Kp = 0.15; //old value 0.08
+  float Kp = 0.18; //old value 0.08
   float Kd = 0.01; //old value 0.0001
-  float Ki = 0.01;
+  float Ki = 0.001;
   // Extract the error from the position difference of magnetic line
   error = sensor_position();
   integral = integral + error;

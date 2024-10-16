@@ -10,26 +10,26 @@ void check() {
 }
 
 //Function that make the robot goes straight
-void straight() {
-  speed_left = speed_right = 0.034/0.125*255; // m/s
+void straight(float speed) {
+  speed_left = speed_right = speed/0.125*255; // m/s
   set_motor(0, speed_left, 1, speed_right);
 }
 
 //Function that make the robot goes backward
-void back() {
-  speed_left = speed_right = 255; // m/s
+void back(float speed) {
+  speed_left = speed_right = speed/0.125*255; // m/s
   set_motor(1, speed_left, 0, speed_right);
 }
 
 //Function that make the robot rotates right
-void right() {
-  speed_left = speed_right = 0.06;
+void right(float speed) {
+  speed_left = speed_right = speed/0.125*255;
   set_motor(0, speed_left, 0, speed_right);
 }
 
 //Fucntion that make the robot turns left
-void left() {
-  speed_left = speed_right = 0.06;
+void left(float speed) {
+  speed_left = speed_right = speed/0.125*255;
   set_motor(1, speed_left, 1, speed_right);
 }
 
