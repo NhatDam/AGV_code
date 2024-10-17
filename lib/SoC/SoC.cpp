@@ -1,21 +1,26 @@
 #include <SoC.h>
 #include <Wire.h>
 #include <EEPROM.h>
-DFRobot_INA219_IIC ina219(&Wire, INA219_I2C_ADDRESS4);
+
+
+
 int eepromAddress = 0;
 float battery_cap = 35;//35Ah
-float voltage, current = 0;
+double voltage, current = 0;
 unsigned long save_interval = 60000;
 
-void Calculate_V_and_A()
+void Calculate_V_and_A(DFRobot_INA219_IIC ina219)
 {
     voltage = ina219.getBusVoltage_V();
+    // voltage = ina219.getPower_mW()/ina219.getCurrent_mA();
     Serial.print("Voltage: ");
-    Serial.println(voltage);
+    Serial.print(voltage);
+    Serial.println(" V");
 
     current = (ina219.getCurrent_mA())/1000;
     Serial.print("Current: ");
-    Serial.println(current);
+    Serial.print(current);
+    Serial.println(" A");
     
 }
 //Calculate the current SoC of the battery
@@ -28,7 +33,7 @@ void Calculate_SoC(float deltaT){
         saveSoCToEEPROM(current_SoC);
         last_save_time = millis();
     }
-    float SoC_percentage = current_SoC * 100;
+    // float SoC_percentage = current_SoC * 100;
 }
 // Write the SoC value to EEPROM
 void saveSoCToEEPROM(float SoC) {
