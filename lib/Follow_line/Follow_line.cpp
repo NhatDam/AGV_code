@@ -28,9 +28,9 @@ void PID() {
   lastError = error;
 
   if (powerDifference < 0) {
-    set_motor(0, maxSpeed - powerDifference, 1, maxSpeed);
+    set_motor(CCW, maxSpeed - powerDifference, CW, maxSpeed);
   } else {
-    set_motor(0, maxSpeed, 1, maxSpeed + powerDifference);
+    set_motor(CCW, maxSpeed, CW, maxSpeed + powerDifference);
   }
 }
 

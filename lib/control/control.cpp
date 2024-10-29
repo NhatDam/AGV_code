@@ -1,6 +1,4 @@
 #include "control.h"
-float speed_left = 0;
-float speed_right = 0;
 int state = 0;
 
 // void check() {
@@ -10,33 +8,30 @@ int state = 0;
 // }
 
 //Function that make the robot goes straight with specified velocity in m/s
-void straight(float speed) {
-  speed_left = speed_right = speed/0.125*255; // m/s
-  set_motor(0, speed_left, 1, speed_right);
+void straight(float speed_left, float speed_right) {
+  set_motor(CCW, speed_left/0.125*255, CW, speed_right/0.125*255);
 }
 
 //Function that make the robot goes backward
-void back(float speed) {
-  speed_left = speed_right = speed/0.125*255; // m/s
-  set_motor(1, speed_left, 0, speed_right);
+void back(float speed_left, float speed_right) {
+  
+  set_motor(CW, speed_left/0.125*255, CCW, speed_right/0.125*255);
 }
 
 //Function that make the robot rotates right
-void right(float speed) {
-  speed_left = speed_right = speed/0.125*255;
-  set_motor(0, speed_left, 0, speed_right);
+void right(float speed_left, float speed_right) {
+  
+  set_motor(CCW, speed_left/0.125*255, CCW, speed_right/0.125*255);
 }
 
 //Fucntion that make the robot turns left
-void left(float speed) {
-  speed_left = speed_right = speed/0.125*255;
-  set_motor(1, speed_left, 1, speed_right);
+void left(float speed_left, float speed_right) {
+  set_motor(CW, speed_left/0.125*255, CW, speed_right/0.125*255);
 }
 
 //Function that make the robot stops
 void stopp() {
-speed_left = speed_right = 0;
-  set_motor(1, speed_left, 0, speed_right);
+  set_motor(0, 0, 0, 0);
 }
 
 // Setting up the input direction and speed of two motors
@@ -53,4 +48,25 @@ void set_motor (int direction_left, float speed_left, int direction_right, float
   analogWrite(SV1, speed_right);
   digitalWrite(FR2, direction_left);
   analogWrite(SV2, speed_left);
+}
+
+void handle_motor_com(float speed_left, float speed_right){
+  if(speed_left > 0 && speed_right > 0)
+  {
+    straight(speed_left,speed_right);
+  }
+  else if(speed_left < 0 && speed_right < 0)
+  {
+    back(speed_left,speed_right);
+  }
+  else if(speed_left < 0 && speed_right > 0)
+  {
+    left(speed_left,speed_right);
+  }
+  else if (speed_left > 0 && speed_right < 0){
+    right(speed_left,speed_right);
+  }
+  else{
+    stopp();
+  }
 }

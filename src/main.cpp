@@ -3,7 +3,10 @@
 #include "GPIO.h"
 #include "control.h"
 #include "SoC.h"
-
+#include "commands.h"
+unsigned long t, tprev = 0;
+float deltaT = 0;
+long lastTime = 0;
 void setup() {
   Serial.begin(9600);
   for (int a = 0; a < 16; a++) {
@@ -29,8 +32,8 @@ void loop() {
   deltaT = ((float)(t - tprev))/1.0e6;
   tprev=t;
 
-  // Print the output RPM from two motors
-  print_RPM();
+ 
+
   // Check the input commands
   
   switch (6) {
@@ -38,16 +41,16 @@ void loop() {
       stopp();
       break;
     case 6://110
-      straight(0.125);
+      straight(0.125,0.125);
       break;
     case 5://101
-      back(0.1);
+      back(0.125,0.125);
       break;
     case 4://100
-      left(0.034);
+      left(0.125,0.125);
       break;
     case 3://011
-      right(0.089);
+      right(0.125,0.125);
       break;
     case 9:
       follow_line();

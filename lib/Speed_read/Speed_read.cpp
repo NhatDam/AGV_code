@@ -1,17 +1,8 @@
 #include <Speed_read.h>
-// Pins that attached to motor drivers to read speed
-const int speedPinleft = 3; 
-const int speedPinright = 2; 
 
-// Define parameters to calculate time elapsed 
-unsigned long t, tprev = 0;
-float deltaT = 0;
-long lastTime = 0;
 
 // Define parameters to calculate the speed
 volatile long countL = 0, countL_i =0, countR = 0, countR_i =0;
-float speed_actual_left = 0, speed_actual_right= 0, raw_speed_left= 0, raw_speed_right= 0;
-volatile long countL_prev=0, countR_prev=0;
 
 // Define function to count pulses from left motor driver
 void countLeftPulses() {
@@ -23,42 +14,21 @@ void countRightPulses() {
       countR_i++;
 }
 
-
 // Calculate RPM every second
-void print_RPM(){
+long read_encoder(int wheel){
 
   // Using atomic_block to safely access the variables by stop interrupt and re-activate it
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
     countL = countL_i;
     countR = countR_i;
     }
-  
-  // Calculate the speed in Counts/second
-  raw_speed_left = (countL-countL_prev)/deltaT;
-  Serial.print("Left Motor C/s: ");
-  Serial.println(raw_speed_left,3);
-  countL_prev=countL;
-  raw_speed_right = (countR-countR_prev)/deltaT;
-  Serial.print("Right Motor C/s: ");
-  Serial.println(raw_speed_right,3);
-  countR_prev=countR;
-
-  //Convert the speed to Revolutions/minute and print it out
-  speed_actual_left = raw_speed_left/(pulsesPerRevolution*gearRatio)*60; // m/s
-  // if (speed_actual_left > 0.125)
-  // {
-  //   speed_actual_left = 0.125;
-  // }
-  Serial.print("Left Motor RPM: ");
-  Serial.println(speed_actual_left,3);
-
-  speed_actual_right = raw_speed_right/(pulsesPerRevolution*gearRatio)*60; // m/s
-  // if (speed_actual_right > 0.125)
-  // {
-  //   speed_actual_right = 0.125;
-  // }
-  Serial.print("Right Motor RPM: ");
-  Serial.println(speed_actual_right,3);
-  Serial.println("-------------------");
+  if(wheel== 0)
+  {
+    return countL;
+  }
+  else if(wheel == 1)
+  {
+    return countR;
+  }
   
 }
