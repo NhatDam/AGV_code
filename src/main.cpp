@@ -4,37 +4,36 @@
 #include "control.h"
 #include "SoC.h"
 #include "SPI.h"
-#include <Adafruit_GFX.h>    
-#include <Adafruit_ST7789.h>
-// #include <Wire.h>
-// #include "DFRobot_INA219.h"
-
+#include "Oled.h"
+#include "SimpleKalmanFilter.h"
+// #define TFT_CS  53
+// #define TFT_RST 14// Or set to -1 and connect to Arduino RESET pin
+// #define TFT_DC  15
+// #define TFT_MOSI 51  // Data out
+// #define TFT_SCLK 52  // Clock out
 DFRobot_INA219_IIC ina219(&Wire,INA219_I2C_ADDRESS4);
-#define TFT_CS  53
-#define TFT_RST 14// Or set to -1 and connect to Arduino RESET pin
-#define TFT_DC  15
-#define TFT_MOSI 51  // Data out
-#define TFT_SCLK 52  // Clock out
-Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST);
+// Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST);
+SimpleKalmanFilter speed_read_left(1, 1, 0.01);
+SimpleKalmanFilter speed_read_right(1, 1, 0.01);
 
 // Revise the following two paramters according to actula reading of the INA219 and the multimeter
 // for linearly calibration
 float ina219Reading_mA = 1920;
 float extMeterReading_mA = 1900;
-
+float F_speedL = 0, F_speedR = 0;
 void setup() {
   Serial.begin(115200);
+  Serial2.begin(9600);
   for (int a = 0; a < 16; a++) {
     pinMode(input_pin[a], INPUT_PULLUP);
   }
-  tft.init(240, 320,SPI_MODE2); 
+   
   
   pinMode(speedPinleft, INPUT);
   pinMode(speedPinright, INPUT);
 
   attachInterrupt(digitalPinToInterrupt(speedPinleft), countLeftPulses,RISING);
   attachInterrupt(digitalPinToInterrupt(speedPinright), countRightPulses, RISING);
-
   pinMode(FR1, OUTPUT);
   pinMode(FR2, OUTPUT);
   pinMode(SV1, OUTPUT);
@@ -45,22 +44,14 @@ void setup() {
   //       Serial.println("INA219 begin faild");
   //       delay(2000);
   //   }
-    ina219.linearCalibrate(ina219Reading_mA, extMeterReading_mA);
-    Serial.println();
-    tft.setCursor(0, 0);
-    tft.setTextColor(ST77XX_WHITE,ST77XX_BLACK);
-    tft.setTextSize(4);
-    tft.print("V: ");
+  ina219.linearCalibrate(ina219Reading_mA, extMeterReading_mA);
 
-    tft.setCursor(0, 120);
-    tft.setTextColor(ST77XX_WHITE,ST77XX_BLACK);
-    tft.setTextSize(4);
-    tft.print("I: ");
+  // 2.0 TFT oled initialize
+  // OLED_init(tft);
 }
 
-char _buffer[11];
+
 void loop() {
-  
   // Get current time in uS
   t = micros();  
   // Calculating elapsed time deltaT in S
@@ -82,31 +73,52 @@ void loop() {
   //   Serial.println("");
   //   delay(1000);
   // Print the output RPM from two motors
-
-  Calculate_V_and_A(ina219);
-  
-
-  sprintf(_buffer,"%02u.%02u",(int)(voltage),(int)(voltage*100)%100);
-tft.setTextColor(ST77XX_WHITE,ST77XX_BLACK);
-tft.setCursor(18*3, 0);
-tft.print(_buffer);
-  
-  sprintf(_buffer,"%02u.%02u",(int)(current),(int)(current*100)%100);
-tft.setTextColor(ST77XX_WHITE,ST77XX_BLACK);
-tft.setCursor(18*3, 120);
-tft.print(_buffer);
   print_RPM();
+  F_speedL = speed_read_left.updateEstimate(speed_actual_left);
+  if(F_speedL<1)
+  {
+    F_speedL = 0;
+  }
+  F_speedR = speed_read_right.updateEstimate(speed_actual_right);
+  if(F_speedR<1)
+  {
+    F_speedR = 0;
+  }
+  Calculate_V_and_A(ina219);
+  Calculate_SoC(deltaT, current);
+  
+  
+  // Serial.print("Filter Left: "); Serial.println(F_speedL,3);
+  // Serial.print("Filter Right: "); Serial.println(F_speedR,3);
+  // Serial.print("Left: "); Serial.println(speed_actual_left,3); 
+  // Serial.print("Right: "); Serial.println(speed_actual_right,3);
+  // Serial.print(SoC_percentage,3); Serial.println();
+
+  Serial2.print(voltage); Serial2.print(",");
+  Serial.print(voltage); Serial.print(",");
+  Serial2.print(current); Serial2.print(",");
+  Serial.print(current); Serial.print(",");
+  Serial2.print(F_speedL); Serial2.print(",");
+  Serial.print(F_speedL); Serial.print(",");
+  Serial2.print(F_speedR); Serial2.print(",");
+  Serial.print(F_speedR); Serial.print(",");
+  Serial2.print(SoC_percentage); Serial2.println();
+  Serial.print(SoC_percentage); Serial.println();
+  
+  
+  // Serial.print(SoC_percentage,3); Serial.println();
+  // Serial.print(deltaT);
   // Check the input commands
   
-  switch (6) {
+  switch (9) {
     case 7: //111
       stopp();
       break;
     case 6://110
-      straight(0.125);
+      straight(50);
       break;
     case 5://101
-      back(0.1);
+      back(0.125);
       break;
     case 4://100
       left(0.034);

@@ -35,30 +35,33 @@ void print_RPM(){
   
   // Calculate the speed in Counts/second
   raw_speed_left = (countL-countL_prev)/deltaT;
-  Serial.print("Left Motor C/s: ");
-  Serial.println(raw_speed_left,3);
+  // Serial.print("Left Motor C/s: ");
+  // Serial.println(raw_speed_left,3);
   countL_prev=countL;
   raw_speed_right = (countR-countR_prev)/deltaT;
-  Serial.print("Right Motor C/s: ");
-  Serial.println(raw_speed_right,3);
+  // Serial.print("Right Motor C/s: ");
+  // Serial.println(raw_speed_right,3);
   countR_prev=countR;
 
   //Convert the speed to Revolutions/minute and print it out
   speed_actual_left = raw_speed_left/(pulsesPerRevolution*gearRatio)*60; // m/s
+  
+
   // if (speed_actual_left > 0.125)
   // {
   //   speed_actual_left = 0.125;
   // }
-  Serial.print("Left Motor RPM: ");
-  Serial.println(speed_actual_left,3);
+  // Serial.print("Left Motor RPM: ");
+  // Serial.println(speed_actual_left,3);
 
   speed_actual_right = raw_speed_right/(pulsesPerRevolution*gearRatio)*60; // m/s
+  
   // if (speed_actual_right > 0.125)
   // {
   //   speed_actual_right = 0.125;
   // }
-  Serial.print("Right Motor RPM: ");
-  Serial.println(speed_actual_right,3);
-  Serial.println("-------------------");
+  // Serial.print("Right Motor RPM: ");
+  // Serial.println(speed_actual_right,3);
+  // Serial.println("-------------------");
   
 }

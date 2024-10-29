@@ -11,25 +11,25 @@ int state = 0;
 
 //Function that make the robot goes straight with specified velocity in m/s
 void straight(float speed) {
-  speed_left = speed_right = speed/0.125*255; // m/s
+  speed_left = speed_right = speed/100*255; // m/s
   set_motor(0, speed_left, 1, speed_right);
 }
 
 //Function that make the robot goes backward
 void back(float speed) {
-  speed_left = speed_right = speed/0.125*255; // m/s
+  speed_left = speed_right = speed/100*255; // m/s
   set_motor(1, speed_left, 0, speed_right);
 }
 
 //Function that make the robot rotates right
 void right(float speed) {
-  speed_left = speed_right = speed/0.125*255;
+  speed_left = speed_right = speed/100*255;
   set_motor(0, speed_left, 0, speed_right);
 }
 
 //Fucntion that make the robot turns left
 void left(float speed) {
-  speed_left = speed_right = speed/0.125*255;
+  speed_left = speed_right = speed/100*255;
   set_motor(1, speed_left, 1, speed_right);
 }
 
