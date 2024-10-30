@@ -1,5 +1,5 @@
 #include <Speed_read.h>
-
+#include "D:/RMIT/AGV_Project_2024/AGV_code/AGV_code/include/commands.h"
 
 // Define parameters to calculate the speed
 volatile long countL = 0, countL_i =0, countR = 0, countR_i =0;
@@ -22,13 +22,24 @@ long read_encoder(int wheel){
     countL = countL_i;
     countR = countR_i;
     }
-  if(wheel== 0)
+  if(wheel == LEFT)
   {
     return countL;
   }
-  else if(wheel == 1)
+  else 
   {
     return countR;
   }
-  
+}
+
+void reset_encoder(int wheel)
+{
+  if(wheel== LEFT)
+  {
+    countL_i = 0;
+  }
+  else 
+  {
+    countR_i = 0;
+  }
 }

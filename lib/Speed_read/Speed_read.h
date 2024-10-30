@@ -23,6 +23,7 @@ extern volatile long countL, countL_i, countR, countR_i;
 void countLeftPulses();
 void countRightPulses();
 long read_encoder(int wheel);
+void reset_encoder(int wheel);
 
 #endif
 
