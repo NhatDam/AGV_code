@@ -42,12 +42,12 @@ void setEachMotorSpeed(int wheel, int spd) {
       spd = 255;
     
     if (wheel == LEFT) { 
-      if      (reverse == 0) { digitalWrite(FR2, CW);analogWrite(SV2, spd); }
-      else if (reverse == 1) { digitalWrite(FR2, CCW);analogWrite(SV2, spd); }
+      if      (reverse == 0) { digitalWrite(FR2, CCW);analogWrite(SV2, spd); }
+      else if (reverse == 1) { digitalWrite(FR2, CW);analogWrite(SV2, spd); }
     }
     else /*if (wheel == RIGHT) //no need for condition*/ {
-      if      (reverse == 0) { digitalWrite(FR1, CCW);analogWrite(SV1, spd); }
-      else if (reverse == 1) { digitalWrite(FR1, CW);analogWrite(SV1, spd); }
+      if      (reverse == 0) { digitalWrite(FR1, CW);analogWrite(SV1, spd); }
+      else if (reverse == 1) { digitalWrite(FR1, CCW);analogWrite(SV1, spd); }
     }
   }
 // Setting up the input direction and speed of two motors

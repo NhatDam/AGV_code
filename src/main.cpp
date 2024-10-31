@@ -93,7 +93,8 @@ long lastTime = 0;
 
 /* Clear the current command parameters */
 void resetCommand() {
-  cmd = NULL;
+  Serial.println("Reset command");
+  cmd = '\0';
   memset(argv1, 0, sizeof(argv1));
   memset(argv2, 0, sizeof(argv2));
   arg1 = 0;
@@ -103,7 +104,8 @@ void resetCommand() {
 }
 
 /* Run a command.  Commands are defined in commands.h */
-int runCommand() {
+void runCommand() {
+  Serial.println("Run command");
   int i = 0;
   char *p = argv1;
   char *str;
@@ -147,7 +149,7 @@ int runCommand() {
     Serial.println("OK"); 
     break;
   case UPDATE_PID:
-    while ((str = strtok_r(p, ":", &p)) != '\0') {
+    while ((str = strtok_r(p, ":", &p)) != NULL) {
        pid_args[i] = atoi(str);
        i++;
     }
@@ -163,7 +165,7 @@ int runCommand() {
   }
 }
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(57600);
   for (int a = 0; a < 16; a++) {
     pinMode(input_pin[a], INPUT_PULLUP);
   }
@@ -194,9 +196,9 @@ void loop() {
     chr = Serial.read();
 
     // Terminate a command with a CR
-    if (chr == 13) {
-      if (arg == 1) argv1[index] = NULL;
-      else if (arg == 2) argv2[index] = NULL;
+    if (chr == '/') {
+      if (arg == 1) argv1[index] = '\0';
+      else if (arg == 2) argv2[index] = '\0';
       runCommand();
       resetCommand();
     }
@@ -205,7 +207,7 @@ void loop() {
       // Step through the arguments
       if (arg == 0) arg = 1;
       else if (arg == 1)  {
-        argv1[index] = NULL;
+        argv1[index] = '\0';
         arg = 2;
         index = 0;
       }
@@ -234,7 +236,7 @@ void loop() {
   }
   // Check to see if we have exceeded the auto-stop interval
   if ((millis() - lastMotorCommand) > AUTO_STOP_INTERVAL) {;
-    set_motor(0,0,0,0);
+    setMotorSpeeds(0, 0);
     moving = 0;
   }
 
