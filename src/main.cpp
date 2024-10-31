@@ -54,7 +54,7 @@
 #include "commands.h"
 #include "AGV_controller.h"
 
-#define AUTO_STOP_INTERVAL 2000
+
 /* Run the PID loop at 30 times per second */
   #define PID_RATE           30     // Hz
 
@@ -66,7 +66,7 @@ unsigned long nextPID = PID_INTERVAL;
 
 /* Stop the robot if it hasn't received a movement command
    in this number of milliseconds */
-#define AUTO_STOP_INTERVAL 2000
+#define AUTO_STOP_INTERVAL 20000
 long lastMotorCommand = AUTO_STOP_INTERVAL;
 
 // A pair of varibles to help parse serial commands 
@@ -116,9 +116,9 @@ void runCommand() {
   switch(cmd) {
   
   case READ_ENCODERS:
-    Serial.print(read_encoder(LEFT));
+    Serial.print(read_encoder(RIGHT));
     Serial.print(" ");
-    Serial.println(read_encoder(RIGHT));
+    Serial.println(read_encoder(LEFT));
     break;
   case RESET_ENCODERS:
   reset_encoder(LEFT);
@@ -164,8 +164,12 @@ void runCommand() {
     break;
   }
 }
+
+
 void setup() {
   Serial.begin(57600);
+  battery_init();
+  Serial2.begin(9600);
   for (int a = 0; a < 16; a++) {
     pinMode(input_pin[a], INPUT_PULLUP);
   }
@@ -185,11 +189,16 @@ void setup() {
 }
 
 void loop() {
-  // Get current time in uS
-  t = micros();  
-  // Calculating elapsed time deltaT in S
-  deltaT = ((float)(t - tprev))/1.0e6;
-  tprev=t;
+  
+  // // Get current time in uS
+  // t = micros();  
+  // // Calculating elapsed time deltaT in S
+  // deltaT = ((float)(t - tprev))/1.0e6;
+  // tprev=t;
+  // //calculate RPM by mega
+  // local_RPM(deltaT);
+  // Calculate_V_and_A();
+
   while (Serial.available() > 0) {
     
     // Read the next character
@@ -239,5 +248,15 @@ void loop() {
     setMotorSpeeds(0, 0);
     moving = 0;
   }
+  // Serial.print(voltage); Serial.print(",");
+
+  // Serial.print(current); Serial.print(",");
+
+  // Serial.print(speed_left); Serial.print(",");
+
+  // Serial.print(speed_right); Serial.print(",");
+
+  // Serial.print(0); Serial.println();
+  
 
 }

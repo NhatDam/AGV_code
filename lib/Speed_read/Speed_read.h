@@ -24,7 +24,8 @@ void countLeftPulses();
 void countRightPulses();
 long read_encoder(int wheel);
 void reset_encoder(int wheel);
-
+void local_RPM(float deltaT);
+extern float speed_left, speed_right;
 #endif
 
 

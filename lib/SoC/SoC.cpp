@@ -7,15 +7,20 @@ float battery_cap = 35;//35Ah
 float voltage, current = 0;
 unsigned long save_interval = 60000;
 
+void battery_init()
+{
+    ina219.begin();
+}
+
 void Calculate_V_and_A()
 {
     voltage = ina219.getBusVoltage_V();
-    Serial.print("Voltage: ");
-    Serial.println(voltage);
+    // Serial.print("Voltage: ");
+    // Serial.println(voltage);
 
     current = (ina219.getCurrent_mA())/1000;
-    Serial.print("Current: ");
-    Serial.println(current);
+    // Serial.print("Current: ");
+    // Serial.println(current);
     
 }
 //Calculate the current SoC of the battery

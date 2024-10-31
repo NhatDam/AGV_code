@@ -6,4 +6,6 @@ void Calculate_V_and_A();
 void Calculate_SoC(float deltaT);
 void saveSoCToEEPROM(float SoC);
 float readSoCFromEEPROM();
+void battery_init();
+extern float voltage, current;
 #endif
