@@ -1,5 +1,7 @@
 #include "control.h"
 #include "D:/RMIT/AGV_Project_2024/AGV_code/AGV_code/include/commands.h"
+unsigned char reverse_L;
+unsigned char reverse_R;
 //Function that make the robot goes straight with specified velocity in m/s
 void straight(float speed_left, float speed_right) {
   set_motor(CCW, speed_left, CW, speed_right);
@@ -31,23 +33,24 @@ void initMotorController()
 
 }
 void setEachMotorSpeed(int wheel, int spd) {
-    unsigned char reverse = 0;
-  
+  if(wheel == LEFT) reverse_L = 0;
+  else if(wheel == RIGHT) reverse_R = 0;
     if (spd < 0)
     {
       spd = -spd;
-      reverse = 1;
+      if(wheel == LEFT) reverse_L = 1;
+      else if(wheel == RIGHT) reverse_R = 1;
     }
     if (spd > 255)
       spd = 255;
     
     if (wheel == LEFT) { 
-      if      (reverse == 0) { digitalWrite(FR2, CCW);analogWrite(SV2, spd); }
-      else if (reverse == 1) { digitalWrite(FR2, CW);analogWrite(SV2, spd); }
+      if      (reverse_L == 0) { digitalWrite(FR2, CCW);analogWrite(SV2, spd); }
+      else if (reverse_L == 1) { digitalWrite(FR2, CW);analogWrite(SV2, spd); }
     }
     else /*if (wheel == RIGHT) //no need for condition*/ {
-      if      (reverse == 0) { digitalWrite(FR1, CW);analogWrite(SV1, spd); }
-      else if (reverse == 1) { digitalWrite(FR1, CCW);analogWrite(SV1, spd); }
+      if      (reverse_R == 0) { digitalWrite(FR1, CW);analogWrite(SV1, spd); }
+      else if (reverse_R == 1) { digitalWrite(FR1, CCW);analogWrite(SV1, spd); }
     }
   }
 // Setting up the input direction and speed of two motors

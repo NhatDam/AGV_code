@@ -66,7 +66,7 @@ unsigned long nextPID = PID_INTERVAL;
 
 /* Stop the robot if it hasn't received a movement command
    in this number of milliseconds */
-#define AUTO_STOP_INTERVAL 20000
+#define AUTO_STOP_INTERVAL 2000
 long lastMotorCommand = AUTO_STOP_INTERVAL;
 
 // A pair of varibles to help parse serial commands 
@@ -93,7 +93,6 @@ long lastTime = 0;
 
 /* Clear the current command parameters */
 void resetCommand() {
-  Serial.println("Reset command");
   cmd = '\0';
   memset(argv1, 0, sizeof(argv1));
   memset(argv2, 0, sizeof(argv2));
@@ -105,7 +104,6 @@ void resetCommand() {
 
 /* Run a command.  Commands are defined in commands.h */
 void runCommand() {
-  Serial.println("Run command");
   int i = 0;
   char *p = argv1;
   char *str;
@@ -116,9 +114,9 @@ void runCommand() {
   switch(cmd) {
   
   case READ_ENCODERS:
-    Serial.print(read_encoder(RIGHT));
+    Serial.print(read_encoder(LEFT));
     Serial.print(" ");
-    Serial.println(read_encoder(LEFT));
+    Serial.println(read_encoder(RIGHT));
     break;
   case RESET_ENCODERS:
   reset_encoder(LEFT);
@@ -128,17 +126,20 @@ void runCommand() {
   break;
   case MOTOR_SPEEDS:
     /* Reset the auto stop timer */
-    
     lastMotorCommand = millis();
-    if (arg1 == 0 && arg2 == 0) {
-      setMotorSpeeds(0, 0);
-      resetPID();
-      moving = 0;
-    }
-    else moving = 1;
-    leftPID.TargetTicksPerFrame = arg1;
-    rightPID.TargetTicksPerFrame = arg2;
+    moving = 0;
+    setMotorSpeeds(arg1, arg2);
     Serial.println("OK"); 
+    // lastMotorCommand = millis();
+    // if (arg1 == 0 && arg2 == 0) {
+    //   setMotorSpeeds(0, 0);
+    //   resetPID();
+    //   moving = 0;
+    // }
+    // else moving = 1;
+    // leftPID.TargetTicksPerFrame = arg1;
+    // rightPID.TargetTicksPerFrame = arg2;
+    // Serial.println("OK"); 
     break;
   case MOTOR_RAW_PWM:
     /* Reset the auto stop timer */
@@ -168,8 +169,7 @@ void runCommand() {
 
 void setup() {
   Serial.begin(57600);
-  battery_init();
-  Serial2.begin(9600);
+  // battery_init();
   for (int a = 0; a < 16; a++) {
     pinMode(input_pin[a], INPUT_PULLUP);
   }
@@ -205,7 +205,7 @@ void loop() {
     chr = Serial.read();
 
     // Terminate a command with a CR
-    if (chr == '/') {
+    if (chr == '\r') {
       if (arg == 1) argv1[index] = '\0';
       else if (arg == 2) argv2[index] = '\0';
       runCommand();
@@ -238,12 +238,12 @@ void loop() {
       }
     }
   }
-  //Run PID calculation at the approriate intervals
-  if (millis() > nextPID) {
-    updatePID();
-    nextPID += PID_INTERVAL;
-  }
-  // Check to see if we have exceeded the auto-stop interval
+  // //Run PID calculation at the approriate intervals
+  // if (millis() > nextPID) {
+  //   updatePID();
+  //   nextPID += PID_INTERVAL;
+  // }
+  // // Check to see if we have exceeded the auto-stop interval
   if ((millis() - lastMotorCommand) > AUTO_STOP_INTERVAL) {;
     setMotorSpeeds(0, 0);
     moving = 0;

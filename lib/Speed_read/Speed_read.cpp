@@ -1,5 +1,6 @@
 #include <Speed_read.h>
 #include "D:/RMIT/AGV_Project_2024/AGV_code/AGV_code/include/commands.h"
+#include "control.h"
 
 float speed_left = 0, speed_right = 0;
 // Define parameters to calculate the speed
@@ -8,29 +9,37 @@ volatile long countL_prev = 0, countR_prev = 0;
 
 // Define function to count pulses from left motor driver
 void countLeftPulses() {
-      countL_i++;
+  if(reverse_L == 0) countL_i++;
+  else if(reverse_L == 1) countL_i--;
 }
 
 // Define function to count pulses from right motor driver
 void countRightPulses() {
-      countR_i++;
+  if(reverse_R == 0) 
+  {
+    countR_i++;
+  }
+  else if(reverse_R == 1){
+    countR_i--;
+  } 
+
 }
 
 // Calculate RPM every second
 long read_encoder(int wheel){
 
   // Using atomic_block to safely access the variables by stop interrupt and re-activate it
-  ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
-    countL = countL_i;
-    countR = countR_i;
-    }
+  // ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
+  //   countL = countL_i;
+  //   countR = countR_i;
+  //   }
   if(wheel == LEFT)
   {
-    return countL;
+    return countL_i;
   }
   else 
   {
-    return countR;
+    return countR_i;
   }
 }
 
