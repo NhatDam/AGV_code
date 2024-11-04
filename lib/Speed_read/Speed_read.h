@@ -8,7 +8,7 @@
 #define speedPinright 2
 #define speedPinleft 3
 
-extern volatile long countL, countL_i, countR, countR_i; 
+extern volatile long  countL, countL_i, countR, countR_i; 
 
 // extern float speed_actual_left, speed_actual_right, raw_speed_left, raw_speed_right;
 
