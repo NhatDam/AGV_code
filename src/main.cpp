@@ -54,9 +54,14 @@
 #include "commands.h"
 #include "AGV_controller.h"
 
+DFRobot_INA219_IIC ina219(&Wire,INA219_I2C_ADDRESS4);
+// Revise the following two paramters according to actula reading of the INA219 and the multimeter
+// for linearly calibration
+float ina219Reading_mA = 1920;
+float extMeterReading_mA = 1900;
 
 /* Run the PID loop at 30 times per second */
-  #define PID_RATE           30     // Hz
+#define PID_RATE           30     // Hz
 
 /* Convert the rate into an interval */
 const int PID_INTERVAL = 1000 / PID_RATE;
@@ -68,7 +73,12 @@ unsigned long nextPID = PID_INTERVAL;
    in this number of milliseconds */
 #define AUTO_STOP_INTERVAL 2000
 long lastMotorCommand = AUTO_STOP_INTERVAL;
-
+void check() {
+  bitWrite(state, 0, digitalRead(7));
+  bitWrite(state, 1, digitalRead(8));
+  bitWrite(state, 2, digitalRead(9));
+}
+int state;
 // A pair of varibles to help parse serial commands 
 int arg = 0;
 int index = 0;
@@ -169,6 +179,9 @@ void runCommand() {
 
 void setup() {
   Serial.begin(57600);
+  pinMode(7, INPUT_PULLUP);
+  pinMode(8, INPUT_PULLUP);
+  pinMode(9, INPUT_PULLUP);
   // battery_init();
   for (int a = 0; a < 16; a++) {
     pinMode(input_pin[a], INPUT_PULLUP);
@@ -184,20 +197,52 @@ void setup() {
   pinMode(FR2, OUTPUT);
   pinMode(SV1, OUTPUT);
   pinMode(SV2, OUTPUT);
-
+  ina219.begin();
+  ina219.linearCalibrate(ina219Reading_mA, extMeterReading_mA);
   resetPID();
 }
 
+
 void loop() {
-  
-  // // Get current time in uS
-  // t = micros();  
-  // // Calculating elapsed time deltaT in S
-  // deltaT = ((float)(t - tprev))/1.0e6;
-  // tprev=t;
+  // Get current time in uS
+  t = micros();  
+  // Calculating elapsed time deltaT in S
+  deltaT = ((float)(t - tprev))/1.0e6;
+  tprev=t;
   // //calculate RPM by mega
   // local_RPM(deltaT);
-  // Calculate_V_and_A();
+  // check();
+  //  switch (state) {
+  // case 7:
+  //   stopp();
+  //   break;
+  // case 6:
+  //   straight(200,200);
+  //   break;
+  // case 5:
+  //   back(100,100);
+  //   break;
+  // case 4:
+  //   left(70,70);
+  //   break;
+  // case 3:
+  //   right(70,70);
+  //   break;
+  // case 0:
+  //   follow_line();
+  //   break;
+  // default:
+  //   stopp();
+  //   break;
+  // }
+  // Serial.print("Left: ");
+  // Serial.println(speed_left);
+  // Serial.print("Right: ");
+  // Serial.println(speed_right);
+  // delay(500);
+  
+  
+ 
 
   while (Serial.available() > 0) {
     
@@ -238,16 +283,17 @@ void loop() {
       }
     }
   }
-  // //Run PID calculation at the approriate intervals
+  //Run PID calculation at the approriate intervals
   // if (millis() > nextPID) {
   //   updatePID();
   //   nextPID += PID_INTERVAL;
   // }
-  // // Check to see if we have exceeded the auto-stop interval
+  // Check to see if we have exceeded the auto-stop interval
   if ((millis() - lastMotorCommand) > AUTO_STOP_INTERVAL) {;
     setMotorSpeeds(0, 0);
     moving = 0;
   }
+  Calculate_V_and_A(ina219);
   // Serial.print(voltage); Serial.print(",");
 
   // Serial.print(current); Serial.print(",");

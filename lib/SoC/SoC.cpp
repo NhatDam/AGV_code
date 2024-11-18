@@ -1,39 +1,59 @@
 #include <SoC.h>
 #include <Wire.h>
 #include <EEPROM.h>
-DFRobot_INA219_IIC ina219(&Wire, INA219_I2C_ADDRESS4);
+#include <SimpleKalmanFilter.h>
+
+
+
 int eepromAddress = 0;
 float battery_cap = 35;//35Ah
 float voltage, current = 0;
-unsigned long save_interval = 60000;
-
-void battery_init()
-{
-    ina219.begin();
-}
-
-void Calculate_V_and_A()
+float SoC_percentage = 0; 
+unsigned long save_interval = 10000;
+float pw_consump = 0;
+float current_SoC = 0;
+void Calculate_V_and_A(DFRobot_INA219_IIC ina219)
 {
     voltage = ina219.getBusVoltage_V();
+    if(voltage < 0.1)
+    {
+        voltage = 0;
+    }
+    // voltage = ina219.getPower_mW()/ina219.getCurrent_mA();
     // Serial.print("Voltage: ");
-    // Serial.println(voltage);
+    // Serial.print(voltage);
+    // Serial.println(" V");
 
     current = (ina219.getCurrent_mA())/1000;
+    if(current < 0.05)
+    {
+        current = 0;
+    }
+    // current = 9;
     // Serial.print("Current: ");
-    // Serial.println(current);
+    // Serial.print(current);
+    // Serial.println(" A");
     
 }
 //Calculate the current SoC of the battery
-void Calculate_SoC(float deltaT){
+void Calculate_SoC(float deltaT, float current){
     unsigned long last_save_time = 0;
     float previous_SoC = readSoCFromEEPROM();
-    float current_SoC = previous_SoC - ((current/battery_cap)*(deltaT/3600));
-    if(millis() - last_save_time > save_interval)
+
+    pw_consump = pw_consump + ((current/battery_cap)*(deltaT/3600));
+    
+    if(millis() - last_save_time > save_interval || millis() < 1000 )
     {
+        current_SoC = previous_SoC - pw_consump;
+        pw_consump = 0;
         saveSoCToEEPROM(current_SoC);
         last_save_time = millis();
     }
-    float SoC_percentage = current_SoC * 100;
+    
+    SoC_percentage = current_SoC * 100;;
+    // Serial.print("SOC: ");
+    // Serial.println(SoC_percentage);
+
 }
 // Write the SoC value to EEPROM
 void saveSoCToEEPROM(float SoC) {
@@ -43,10 +63,9 @@ void saveSoCToEEPROM(float SoC) {
 float readSoCFromEEPROM() {
     float storedSoC = 0.0;
     EEPROM.get(eepromAddress, storedSoC);
-    if (storedSoC < 0.0 || storedSoC > 1.0 || voltage > 25.0) {
+    if (storedSoC < 0.0 || storedSoC > 1.0) {
         storedSoC = 1.0;  // Initialize to 100% if not set
     }
     
     return storedSoC;
 }
-
