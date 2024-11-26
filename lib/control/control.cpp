@@ -53,8 +53,9 @@ void setEachMotorSpeed(int wheel, int spd) {
       else if (reverse_R == 1) { digitalWrite(FR1, CCW);analogWrite(SV1, spd); }
     }
   }
-// Setting up the input direction and speed of two motors
+// Setting up the input direction and speed of two motors for Magnetic following line
 void set_motor (int direction_left, float speed_left, int direction_right, float speed_right) {
+  // Limit the speed command signal as 255
   if(speed_left > 255)
   {
     speed_left = 255;
@@ -63,6 +64,26 @@ void set_motor (int direction_left, float speed_left, int direction_right, float
   {
     speed_right = 255;
   }
+
+  // Check the direction of left wheel
+  if(direction_left == CCW)
+  {
+    reverse_L = 0;
+  }
+  else
+  {
+    reverse_L = 1;
+  }
+   // Check the direction of right wheel
+  if(direction_right == CW)
+  {
+    reverse_R = 0;
+  }
+  else
+  {
+    reverse_R = 1;
+  }
+  // Drive the motors
   digitalWrite(FR1, direction_right);
   digitalWrite(FR2, direction_left);
   analogWrite(SV1, speed_right);
