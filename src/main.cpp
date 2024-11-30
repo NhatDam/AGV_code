@@ -71,7 +71,7 @@ unsigned long nextPID = PID_INTERVAL;
 
 /* Stop the robot if it hasn't received a movement command
    in this number of milliseconds */
-#define AUTO_STOP_INTERVAL 2000
+#define AUTO_STOP_INTERVAL 60000 //2000
 long lastMotorCommand = AUTO_STOP_INTERVAL;
 void check() {
   bitWrite(state, 0, digitalRead(7));
@@ -122,7 +122,7 @@ void runCommand() {
   arg2 = atoi(argv2);
   
   switch(cmd) {
-  
+  // Read encoder terminal command
   case READ_ENCODERS:
     Serial.print(read_encoder(LEFT));
     Serial.print(" ");
@@ -134,23 +134,21 @@ void runCommand() {
   resetPID();
   Serial.println("OK");
   break;
+  // Set motor speeds terminal command
   case MOTOR_SPEEDS:
     /* Reset the auto stop timer */
     lastMotorCommand = millis();
-    moving = 0;
-    setMotorSpeeds(arg1, arg2);
+    if (arg1 == 0 && arg2 == 0) {
+      setMotorSpeeds(0, 0);
+      resetPID();
+      moving = 0;
+    }
+    else moving = 1;
+    leftPID.TargetCountPerLoop = arg1;
+    rightPID.TargetCountPerLoop = arg2;
     Serial.println("OK"); 
-    // lastMotorCommand = millis();
-    // if (arg1 == 0 && arg2 == 0) {
-    //   setMotorSpeeds(0, 0);
-    //   resetPID();
-    //   moving = 0;
-    // }
-    // else moving = 1;
-    // leftPID.TargetTicksPerFrame = arg1;
-    // rightPID.TargetTicksPerFrame = arg2;
-    // Serial.println("OK"); 
     break;
+
   case MOTOR_RAW_PWM:
     /* Reset the auto stop timer */
     lastMotorCommand = millis();
@@ -159,6 +157,7 @@ void runCommand() {
     setMotorSpeeds(arg1, arg2);
     Serial.println("OK"); 
     break;
+
   case UPDATE_PID:
     while ((str = strtok_r(p, ":", &p)) != NULL) {
        pid_args[i] = atoi(str);
@@ -167,7 +166,6 @@ void runCommand() {
     Kp = pid_args[0];
     Kd = pid_args[1];
     Ki = pid_args[2];
-    Ko = pid_args[3];
     Serial.println("OK");
     break;
   default:
@@ -250,7 +248,7 @@ void loop() {
     chr = Serial.read();
 
     // Terminate a command with a CR
-    if (chr == '\r') {
+    if (chr == '/') {
       if (arg == 1) argv1[index] = '\0';
       else if (arg == 2) argv2[index] = '\0';
       runCommand();
@@ -284,10 +282,10 @@ void loop() {
     }
   }
   //Run PID calculation at the approriate intervals
-  // if (millis() > nextPID) {
-  //   updatePID();
-  //   nextPID += PID_INTERVAL;
-  // }
+  if (millis() > nextPID) {
+    updatePID();
+    nextPID += PID_INTERVAL;
+  }
   // Check to see if we have exceeded the auto-stop interval
   if ((millis() - lastMotorCommand) > AUTO_STOP_INTERVAL) {;
     setMotorSpeeds(0, 0);

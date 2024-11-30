@@ -10,7 +10,7 @@
 #define MAX_PWM 255
 /* PID setpoint info For a Motor */
 typedef struct {
-  double TargetTicksPerFrame;    // target speed in ticks per frame
+  double TargetCountPerLoop;    // target speed in ticks per frame
   long Encoder;                  // encoder count
   long PrevEnc;                  // last encoder count
 
@@ -19,7 +19,7 @@ typedef struct {
   * see http://brettbeauregard.com/blog/2011/04/improving-the-beginner%E2%80%99s-pid-derivative-kick/
   */
   int PrevInput;                // last input
-  //int PrevErr;                   // last error
+  int PrevErr;                   // last error
 
   /*
   * Using integrated term (ITerm) instead of integrated error (Ierror),
@@ -36,10 +36,9 @@ SetPointInfo;
 SetPointInfo leftPID, rightPID;
 
 /* PID Parameters */
-int Kp = 20;
-int Kd = 12;
-int Ki = 0;
-int Ko = 50;
+int Kp = 1;//20
+int Kd = 0;//12
+int Ki = 0;//0
 
 unsigned char moving = 0; // is the base in motion?
 
@@ -52,14 +51,14 @@ unsigned char moving = 0; // is the base in motion?
 * when going from stop to moving, that's why we can init everything on zero.
 */
 void resetPID(){
-   leftPID.TargetTicksPerFrame = 0.0;
+   leftPID.TargetCountPerLoop = 0.0;
    leftPID.Encoder = read_encoder(LEFT);
    leftPID.PrevEnc = leftPID.Encoder;
    leftPID.output = 0;
    leftPID.PrevInput = 0;
    leftPID.ITerm = 0;
 
-   rightPID.TargetTicksPerFrame = 0.0;
+   rightPID.TargetCountPerLoop = 0.0;
    rightPID.Encoder = read_encoder(RIGHT);
    rightPID.PrevEnc = rightPID.Encoder;
    rightPID.output = 0;
@@ -73,9 +72,21 @@ void doPID(SetPointInfo * p) {
   long output;
   int input;
 
-  //Perror = p->TargetTicksPerFrame - (p->Encoder - p->PrevEnc);
+  //Perror = p->TargetCountPerLoop - (p->Encoder - p->PrevEnc);
   input = p->Encoder - p->PrevEnc;
-  Perror = p->TargetTicksPerFrame - input;
+  Perror = p->TargetCountPerLoop - input;
+  if (p=&rightPID)
+  {
+    Serial.print("Right wheel");
+    Serial.println(float(input*30));
+  }
+  else
+  {
+    Serial.print("Left wheel");
+    Serial.println(float(input*30));
+  }
+  
+  
 
 
   /*
@@ -84,8 +95,9 @@ void doPID(SetPointInfo * p) {
   * see http://brettbeauregard.com/blog/2011/04/improving-the-beginner%E2%80%99s-pid-tuning-changes/
   */
   //output = (Kp * Perror + Kd * (Perror - p->PrevErr) + Ki * p->Ierror) / Ko;
-  // p->PrevErr = Perror;
-  output = (Kp * Perror - Kd * (input - p->PrevInput) + p->ITerm) / Ko;
+  p->PrevErr = Perror;
+  // output = (Kp * Perror - Kd * (input - p->PrevInput) + p->ITerm) / Ko;
+  output = Kp * Perror - Kd * (Perror - p->PrevErr) + p->ITerm;
   p->PrevEnc = p->Encoder;
 
   output += p->output;
@@ -99,10 +111,10 @@ void doPID(SetPointInfo * p) {
   /*
   * allow turning changes, see http://brettbeauregard.com/blog/2011/04/improving-the-beginner%E2%80%99s-pid-tuning-changes/
   */
-    p->ITerm += Ki * Perror;
+  p->ITerm += Ki * Perror;
 
   p->output = output;
-  p->PrevInput = input;
+  // p->PrevInput = input;
 }
 
 /* Read the encoder values and call the PID routine */
