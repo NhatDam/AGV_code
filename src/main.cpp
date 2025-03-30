@@ -71,7 +71,7 @@ unsigned long nextPID = PID_INTERVAL;
 
 /* Stop the robot if it hasn't received a movement command
    in this number of milliseconds */
-#define AUTO_STOP_INTERVAL 60000 //2000
+#define AUTO_STOP_INTERVAL 5000 //2000
 long lastMotorCommand = AUTO_STOP_INTERVAL;
 void check() {
   bitWrite(state, 0, digitalRead(7));
@@ -127,6 +127,9 @@ void runCommand() {
     Serial.print(read_encoder(LEFT));
     Serial.print(" ");
     Serial.println(read_encoder(RIGHT));
+    Serial.println(reverse_L);
+    Serial.print(" ");
+    Serial.println(reverse_R);
     break;
   case RESET_ENCODERS:
   reset_encoder(LEFT);
@@ -209,30 +212,8 @@ void loop() {
   tprev=t;
   // //calculate RPM by mega
   // local_RPM(deltaT);
-  // check();
-  //  switch (state) {
-  // case 7:
-  //   stopp();
-  //   break;
-  // case 6:
-  //   straight(200,200);
-  //   break;
-  // case 5:
-  //   back(100,100);
-  //   break;
-  // case 4:
-  //   left(70,70);
-  //   break;
-  // case 3:
-  //   right(70,70);
-  //   break;
-  // case 0:
-  //   follow_line();
-  //   break;
-  // default:
-  //   stopp();
-  //   break;
-  // }
+  check();
+   
   // Serial.print("Left: ");
   // Serial.println(speed_left);
   // Serial.print("Right: ");
@@ -248,7 +229,7 @@ void loop() {
     chr = Serial.read();
 
     // Terminate a command with a CR
-    if (chr == '/') {
+    if (chr == '\'') {
       if (arg == 1) argv1[index] = '\0';
       else if (arg == 2) argv2[index] = '\0';
       runCommand();
@@ -281,17 +262,44 @@ void loop() {
       }
     }
   }
-  //Run PID calculation at the approriate intervals
-  if (millis() > nextPID) {
-    updatePID();
-    nextPID += PID_INTERVAL;
-  }
+  // //Run PID calculation at the approriate intervals
+  // if (millis() > nextPID) {
+  //   updatePID();
+  //   nextPID += PID_INTERVAL;
+  // }
   // Check to see if we have exceeded the auto-stop interval
-  if ((millis() - lastMotorCommand) > AUTO_STOP_INTERVAL) {;
-    setMotorSpeeds(0, 0);
-    moving = 0;
+  // if ((millis() - lastMotorCommand) > AUTO_STOP_INTERVAL) {;
+    //setMotorSpeeds(0, 0);
+  switch (state) {
+  case 7:
+    stopp();
+    break;
+  case 6:
+    // Serial.println("Straight");
+    straight(120,120);
+    break;
+  case 5:
+    // Serial.println("Back");
+    back(100,100);
+    break;
+  case 4:
+    // Serial.println("Left");
+    left(70,70);
+    break;
+  case 3:
+    // Serial.println("Right");
+    right(70,70);
+    break;
+  case 0:
+    follow_line();
+    break;
+  default:
+    stopp();
+    break;
   }
-  Calculate_V_and_A(ina219);
+  //   moving = 0;
+  // }
+  // Calculate_V_and_A(ina219);
   // Serial.print(voltage); Serial.print(",");
 
   // Serial.print(current); Serial.print(",");

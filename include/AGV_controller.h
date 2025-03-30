@@ -75,16 +75,16 @@ void doPID(SetPointInfo * p) {
   //Perror = p->TargetCountPerLoop - (p->Encoder - p->PrevEnc);
   input = p->Encoder - p->PrevEnc;
   Perror = p->TargetCountPerLoop - input;
-  if (p=&rightPID)
-  {
-    Serial.print("Right wheel");
-    Serial.println(float(input*30));
-  }
-  else
-  {
-    Serial.print("Left wheel");
-    Serial.println(float(input*30));
-  }
+  // if (p=&rightPID)
+  // {
+  //   Serial.print(">Right wheel: ");
+  //   Serial.println(float(input*30));
+  // }
+  // else
+  // {
+  //   Serial.print(">Left wheel: ");
+  //   Serial.println(float(input*30));
+  // }
   
   
 

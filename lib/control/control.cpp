@@ -1,7 +1,7 @@
 #include "control.h"
 #include "D:/RMIT/AGV_Project_2024/AGV_code/AGV_code/include/commands.h"
-unsigned char reverse_L;
-unsigned char reverse_R;
+unsigned char reverse_L = 0;
+unsigned char reverse_R = 0;
 //Function that make the robot goes straight with specified velocity in m/s
 void straight(float speed_left, float speed_right) {
   set_motor(CCW, speed_left, CW, speed_right);
@@ -26,7 +26,7 @@ void left(float speed_left, float speed_right) {
 
 //Function that make the robot stops
 void stopp() {
-  set_motor(0, 0, 0, 0);
+  set_motor(CCW, 0, CW, 0);
 }
 void initMotorController()
 {
@@ -70,7 +70,7 @@ void set_motor (int direction_left, float speed_left, int direction_right, float
   {
     reverse_L = 0;
   }
-  else
+  else if(direction_left == CW)
   {
     reverse_L = 1;
   }
@@ -79,10 +79,12 @@ void set_motor (int direction_left, float speed_left, int direction_right, float
   {
     reverse_R = 0;
   }
-  else
+  else if (direction_right == CCW)
   {
     reverse_R = 1;
   }
+  
+  
   // Drive the motors
   digitalWrite(FR1, direction_right);
   digitalWrite(FR2, direction_left);

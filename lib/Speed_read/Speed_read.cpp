@@ -28,11 +28,11 @@ void countRightPulses() {
 // Calculate RPM every second
 long read_encoder(int wheel){
 
-  // Using atomic_block to safely access the variables by stop interrupt and re-activate it
-  // ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
-  //   countL = countL_i;
-  //   countR = countR_i;
-  //   }
+  //Using atomic_block to safely access the variables by stop interrupt and re-activate it
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
+    countL = countL_i;
+    countR = countR_i;
+    }
   if(wheel == LEFT)
   {
     return countL_i;

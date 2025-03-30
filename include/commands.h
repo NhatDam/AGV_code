@@ -2,8 +2,8 @@
 #define AGV_COMMAND_H
 
 #define READ_ENCODERS  'e'
-#define MOTOR_SPEEDS   'm'
-#define MOTOR_RAW_PWM  'o'
+#define MOTOR_SPEEDS   'o'
+#define MOTOR_RAW_PWM  'm'
 #define RESET_ENCODERS 'r'
 #define UPDATE_PID     'p'
 #define LEFT            0
