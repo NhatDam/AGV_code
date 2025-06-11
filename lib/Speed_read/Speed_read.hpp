@@ -1,8 +1,9 @@
 #ifndef AGV_SPEEDREAD_H
 #define AGV_SPEEDREAD_H
-
+#include "../../include/commands.h"
 #include "Arduino.h"
 #include "util/atomic.h"
+#include "control.hpp"
 
 //Declare variables for speed reading
 #define speedPinright 2

@@ -1,5 +1,6 @@
-#include "control.h"
-#include "D:/RMIT/AGV_Project_2024/AGV_code/AGV_code/include/commands.h"
+#include "control.hpp"
+
+int moving = 0;
 unsigned char reverse_L = 0;
 unsigned char reverse_R = 0;
 //Function that make the robot goes straight with specified velocity in m/s

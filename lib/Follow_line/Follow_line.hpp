@@ -1,6 +1,6 @@
 #ifndef AGV_LINEFOLLOW_H
 #define AGV_LINEFOLLOW_H
-#include "control.h"
+#include "control.hpp"
 
 // Function declarations
 void follow_line();

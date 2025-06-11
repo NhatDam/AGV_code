@@ -45,34 +45,31 @@
     ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
-
-#include "Follow_line.h"
-#include "Speed_read.h"
+#include <Arduino.h>
+#include "Follow_line.hpp"
+#include "Speed_read.hpp"
+#include "pid.hpp"
 #include "GPIO.h"
-#include "control.h"
+#include "control.hpp"
 #include "SoC.h"
-#include "commands.h"
+#include "../../include/commands.h"
 #include "AGV_controller.h"
 
-DFRobot_INA219_IIC ina219(&Wire,INA219_I2C_ADDRESS4);
-// Revise the following two paramters according to actula reading of the INA219 and the multimeter
-// for linearly calibration
-float ina219Reading_mA = 1920;
-float extMeterReading_mA = 1900;
 
-/* Run the PID loop at 30 times per second */
-#define PID_RATE           30     // Hz
 
-/* Convert the rate into an interval */
-const int PID_INTERVAL = 1000 / PID_RATE;
+// Set PID rate as 30 times per loop
+#define PID_rate 30
+#define PID_interval 1000/PID_rate
 
-/* Track the next time we make a PID calculation */
-unsigned long nextPID = PID_INTERVAL;
+PID_CLASS motorL(0.5, 1.5, 0.09, LEFT); 
+PID_CLASS motorR(0.5, 1.5, 0.09, RIGHT);
 
 /* Stop the robot if it hasn't received a movement command
    in this number of milliseconds */
 #define AUTO_STOP_INTERVAL 5000 //2000
 long lastMotorCommand = AUTO_STOP_INTERVAL;
+
+long next_PID = 0;
 void check() {
   bitWrite(state, 0, digitalRead(7));
   bitWrite(state, 1, digitalRead(8));
@@ -97,7 +94,7 @@ char argv2[16];
 long arg1;
 long arg2;
 
-unsigned long t, tprev = 0;
+long t, t_prev = 0;
 float deltaT = 0;
 long lastTime = 0;
 
@@ -143,19 +140,21 @@ void runCommand() {
     lastMotorCommand = millis();
     if (arg1 == 0 && arg2 == 0) {
       setMotorSpeeds(0, 0);
-      resetPID();
+      motorL.reset_PID();
+      motorR.reset_PID();
       moving = 0;
     }
     else moving = 1;
-    leftPID.TargetCountPerLoop = arg1;
-    rightPID.TargetCountPerLoop = arg2;
+    motorL.set_input(arg1);
+    motorR.set_input(arg2);
     Serial.println("OK"); 
     break;
 
   case MOTOR_RAW_PWM:
     /* Reset the auto stop timer */
     lastMotorCommand = millis();
-    resetPID();
+    motorL.reset_PID();
+    motorR.reset_PID();
     moving = 0; // Sneaky way to temporarily disable the PID
     setMotorSpeeds(arg1, arg2);
     Serial.println("OK"); 
@@ -163,12 +162,26 @@ void runCommand() {
 
   case UPDATE_PID:
     while ((str = strtok_r(p, ":", &p)) != NULL) {
-       pid_args[i] = atoi(str);
-       i++;
+      if(i < 2) {
+          pid_args[i] = atof(str);
+          switch(i) {
+            case 0:
+              Serial.print("Kp: ");
+              Serial.println(pid_args[i]);
+              break;
+            case 1:
+              Serial.print("Kd: ");
+              Serial.println(pid_args[i]);
+              break;
+            case 2:
+              Serial.print("Ki: ");
+              Serial.println(pid_args[i]);
+          }
+          i++;
+        }
     }
-    Kp = pid_args[0];
-    Kd = pid_args[1];
-    Ki = pid_args[2];
+    motorL.set_PID(pid_args[0], pid_args[1], pid_args[2]);
+    motorR.set_PID(pid_args[0], pid_args[1], pid_args[2]);
     Serial.println("OK");
     break;
   default:
@@ -207,21 +220,19 @@ void setup() {
 void loop() {
   // Get current time in uS
   t = micros();  
-  // Calculating elapsed time deltaT in S
-  deltaT = ((float)(t - tprev))/1.0e6;
-  tprev=t;
-  // //calculate RPM by mega
-  // local_RPM(deltaT);
+
+  // Do PID for all motors with fixed interval
+  if (millis() > next_PID) {
+    deltaT = ((double)(t - t_prev)) / 1.0e3;
+    t_prev = t;
+    local_RPM(deltaT);
+    motorL.do_PID();
+    motorR.do_PID();
+    next_PID += PID_interval;
+  
+  }
   check();
-   
-  // Serial.print("Left: ");
-  // Serial.println(speed_left);
-  // Serial.print("Right: ");
-  // Serial.println(speed_right);
-  // delay(500);
   
-  
- 
 
   while (Serial.available() > 0) {
     
@@ -262,14 +273,7 @@ void loop() {
       }
     }
   }
-  // //Run PID calculation at the approriate intervals
-  // if (millis() > nextPID) {
-  //   updatePID();
-  //   nextPID += PID_INTERVAL;
-  // }
-  // Check to see if we have exceeded the auto-stop interval
-  // if ((millis() - lastMotorCommand) > AUTO_STOP_INTERVAL) {;
-    //setMotorSpeeds(0, 0);
+
   switch (state) {
   case 7:
     stopp();
@@ -297,18 +301,6 @@ void loop() {
     stopp();
     break;
   }
-  //   moving = 0;
-  // }
-  // Calculate_V_and_A(ina219);
-  // Serial.print(voltage); Serial.print(",");
 
-  // Serial.print(current); Serial.print(",");
-
-  // Serial.print(speed_left); Serial.print(",");
-
-  // Serial.print(speed_right); Serial.print(",");
-
-  // Serial.print(0); Serial.println();
   
-
 }

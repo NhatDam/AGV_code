@@ -1,6 +1,5 @@
-#include <Speed_read.h>
-#include "D:/RMIT/AGV_Project_2024/AGV_code/AGV_code/include/commands.h"
-#include "control.h"
+#include "Speed_read.hpp"
+
 
 float speed_left = 0, speed_right = 0;
 // Define parameters to calculate the speed

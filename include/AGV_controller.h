@@ -5,8 +5,8 @@
    http://vanadium-ros-pkg.googlecode.com/svn/trunk/arbotix/
 */
 #include "commands.h"
-#include "Speed_read.h"
-#include <control.h>
+#include "Speed_read.hpp"
+#include "control.hpp"
 #define MAX_PWM 255
 /* PID setpoint info For a Motor */
 typedef struct {
@@ -39,8 +39,6 @@ SetPointInfo leftPID, rightPID;
 int Kp = 1;//20
 int Kd = 0;//12
 int Ki = 0;//0
-
-unsigned char moving = 0; // is the base in motion?
 
 /*
 * Initialize PID variables to zero to prevent startup spikes
