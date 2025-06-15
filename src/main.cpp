@@ -63,58 +63,6 @@ float Kp_vals[] = {2, 3, 4};
 float Ki_vals[] = {0};
 float Kd_vals[] = {0};
 
-void autoTunePID() {
-  float bestError = 999999;
-  float bestKp = 0, bestKi = 0, bestKd = 0;
-
-  Serial.println("Starting auto-tune...");
-
-  // Kickstart the motor
-  moving = 1;
-  pid.set_input(targetRPM);
-  for (float Kp : Kp_vals) {
-    for (float Ki : Ki_vals) {
-      for (float Kd : Kd_vals) {
-        pid.set_PID(Kp, Kd, Ki);
-        pid.reset_PID();
-        
-        
-        float totalError = 0;
-
-        for (int i = 0; i < samples; i++) {
-          local_RPM(sampleTime);
-          pid.do_PID();
-          delay(sampleTime * 1000);
-
-          float currentRPM = get_speed_rpm(LEFT);
-          float error = abs(currentRPM - targetRPM);
-          totalError += error;
-        }
-
-        Serial.print("Kp: "); Serial.print(Kp);
-        Serial.print(", Ki: "); Serial.print(Ki);
-        Serial.print(", Kd: "); Serial.print(Kd);
-        Serial.print(", Error: "); Serial.println(totalError);
-
-        set_motor(CCW, 0, CW, 0);
-        delay(1000);
-
-        if (totalError < bestError) {
-          bestError = totalError;
-          bestKp = Kp;
-          bestKi = Ki;
-          bestKd = Kd;
-        }
-      }
-    }
-  }
-
-  Serial.println("Best tuning:");
-  Serial.print("Kp: "); Serial.println(bestKp);
-  Serial.print("Ki: "); Serial.println(bestKi);
-  Serial.print("Kd: "); Serial.println(bestKd);
-}
-
 
 /* Clear the current command parameters */
 void resetCommand() {
@@ -138,11 +86,7 @@ void runCommand() {
   arg2 = atoi(argv2);
   
   switch(cmd) {
-  case 't':
-    moving = 1;
-    autoTunePID(); // Start auto-tuning
-    moving = 0;
-  break;
+  
   // Read encoder terminal command
   case READ_ENCODERS:
     Serial.print("Count L: "); Serial.print(countL_i);
