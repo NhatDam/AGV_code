@@ -4,7 +4,7 @@
 #include "Arduino.h"
 #include "util/atomic.h"
 #include "control.hpp"
-
+#include "SimpleKalmanFilter.h"
 //Declare variables for speed reading
 #define speedPinright 2
 #define speedPinleft 3
@@ -19,7 +19,7 @@ extern float speed_left, speed_right;
 // const int hallSensors = 3;
 // const int pulsesPerRevolution = motorPolePairs * hallSensors;
 // const float gearRatio = 30.0; // Gear ratio of the 5GU 30L gearhead
-#define CPR 450.0  // 3 hall sensors × 5 pole pairs × 30 gear ratio
+#define CPR 450  // 3 hall sensors × 5 pole pairs × 30 gear ratio
 //Declare functions
 void countLeftPulses();
 void countRightPulses();

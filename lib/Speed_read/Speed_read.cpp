@@ -6,6 +6,9 @@ float speed_left = 0, speed_right = 0;
 volatile long  countL = 0, countL_i =0, countR = 0, countR_i =0;
 volatile long  countL_prev = 0, countR_prev = 0;
 
+SimpleKalmanFilter motorL_filter(1, 1, 0.01);
+SimpleKalmanFilter motorR_filter(1, 1, 0.01);
+
 // Define function to count pulses from left motor driver
 void countLeftPulses() {
   if(reverse_L == 0) countL_i++;
@@ -60,11 +63,18 @@ void local_RPM(float deltaT)
     countL = countL_i;
     countR = countR_i;
     }
-  speed_left = (((countL_i-countL_prev)/deltaT)/CPR) * 60;
+  speed_left = motorL_filter.updateEstimate((((countL_i-countL_prev)/deltaT)/CPR) * 60);
   countL_prev = countL;
-  speed_right = (((countR_i-countR_prev)/deltaT)/CPR) * 60;
+  if(speed_left < 1 && speed_left > -1)
+    {
+        speed_left = 0;
+    }
+  speed_right = motorR_filter.updateEstimate((((countR_i-countR_prev)/deltaT)/CPR) * 60);
   countR_prev = countR;
-
+    if(speed_right < 1 && speed_right > -1)
+    {
+        speed_right = 0;
+    }
 }
 
 float get_speed_rpm(int wheel) {

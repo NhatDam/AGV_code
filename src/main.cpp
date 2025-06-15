@@ -13,8 +13,8 @@
 #define PID_rate 30
 #define PID_interval 1000/PID_rate
 
-PID_CLASS motorL(1, 0, 0, LEFT); 
-PID_CLASS motorR(1, 0, 0, RIGHT);
+PID_CLASS motorL(0.5, 1.5, 0.09, LEFT); 
+PID_CLASS motorR(0.5, 1.5, 0.09, RIGHT);
 
 /* Stop the robot if it hasn't received a movement command
    in this number of milliseconds */
@@ -86,7 +86,17 @@ void runCommand() {
   arg2 = atoi(argv2);
   
   switch(cmd) {
-  
+  case 't':
+    Serial.print("Actual Speed Left: ");
+    Serial.println(motorL.actualSpeed);
+    Serial.print("Actual Speed Right: ");
+    Serial.println(motorR.actualSpeed);
+    Serial.print("Input speed: ");
+    Serial.println(motorL.inputSpeed);
+    Serial.print("Intergration: ");
+    Serial.println(motorL.integration);
+    Serial.print("u: ");
+    Serial.println(motorL.get_output());
   // Read encoder terminal command
   case READ_ENCODERS:
     Serial.print("Count L: "); Serial.print(countL_i);
@@ -234,7 +244,8 @@ void loop() {
       }
     }
   }
-
+    Serial.print(">RPM L: "); Serial.println(get_speed_rpm(LEFT));
+    Serial.print(">RPM R: "); Serial.println(get_speed_rpm(RIGHT));
   // Do PID for all motors with fixed interval
   if (millis() > next_PID) {
     deltaT = ((double)(t - t_prev)) / 1.0e6;  // convert to seconds

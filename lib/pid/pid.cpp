@@ -4,17 +4,17 @@
 
 
 PID_CLASS::PID_CLASS(double kp, double kd, double ki, int motor) : Kp(kp), Ki(ki), Kd(kd),Motor(motor) { }
-
+boolean status = 0;
 
 void PID_CLASS::calculate()
 {
   // Read the feedback data of motor current speed (RPM)
   switch(Motor){
-    case 0:
+    case LEFT:
     this->actualSpeed = speed_left;
     break;
-    case 1:
-    this->actualSpeed = speed_right;
+    case RIGHT:
+    this->actualSpeed =  speed_right;
     break;
   }
   // Sometimes integration is NAN
@@ -32,7 +32,13 @@ void PID_CLASS::calculate()
   // PID calculation
   // Define max RPM and max PWM (based on your test)
   u = (Kp * error - Kd * dInput + integration);
-
+  // if (status == 1)
+  // {
+  //   u = -y;
+  // }
+  // else {
+  //   u = y;
+  // }
   last_actual_speed = actualSpeed;
 
   // Drive the motor using PID outputs
@@ -50,6 +56,12 @@ void PID_CLASS::calculate()
 void PID_CLASS::set_input(double input)
 {
   this->inputSpeed = input;
+  // status = 0;
+  //   if (input < 0)
+  // {
+  //   inputSpeed = -inputSpeed;
+  //   status = 1;
+  // }
 }
 
 // Print the output of PID
