@@ -10,7 +10,7 @@
 #define speedPinleft 3
 
 extern volatile long  countL, countL_i, countR, countR_i; 
-
+extern float speed_left, speed_right;
 // extern float speed_actual_left, speed_actual_right, raw_speed_left, raw_speed_right;
 
 
@@ -19,14 +19,14 @@ extern volatile long  countL, countL_i, countR, countR_i;
 // const int hallSensors = 3;
 // const int pulsesPerRevolution = motorPolePairs * hallSensors;
 // const float gearRatio = 30.0; // Gear ratio of the 5GU 30L gearhead
-
+#define CPR 450.0  // 3 hall sensors × 5 pole pairs × 30 gear ratio
 //Declare functions
 void countLeftPulses();
 void countRightPulses();
 long read_encoder(int wheel);
 void reset_encoder(int wheel);
 void local_RPM(float deltaT);
-extern float speed_left, speed_right;
+float get_speed_rpm(int wheel);
 #endif
 
 

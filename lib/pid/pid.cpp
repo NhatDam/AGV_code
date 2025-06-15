@@ -10,10 +10,10 @@ void PID_CLASS::calculate()
 {
   // Read the feedback data of motor current speed (RPM)
   switch(Motor){
-    case 1:
+    case 0:
     this->actualSpeed = speed_left;
     break;
-    case 2:
+    case 1:
     this->actualSpeed = speed_right;
     break;
   }
@@ -30,15 +30,17 @@ void PID_CLASS::calculate()
   double dInput = actualSpeed - last_actual_speed;
   
   // PID calculation
-  u = (Kp*error) - Kd*dInput + integration;
+  // Define max RPM and max PWM (based on your test)
+  u = (Kp * error - Kd * dInput + integration);
+
   last_actual_speed = actualSpeed;
 
   // Drive the motor using PID outputs
   switch(Motor){
-    case 1:
+    case 0:
     setEachMotorSpeed(LEFT, u);
     break;
-    case 2:
+    default:
     setEachMotorSpeed(RIGHT, u);
     break;
   }
@@ -80,10 +82,11 @@ void PID_CLASS::do_PID()
 {
   if(!moving)
   {
+    
     if(this->last_actual_speed != 0) this->reset_PID();
     return;
   }
+  
   this->calculate();
 }
-
 

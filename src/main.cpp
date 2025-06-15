@@ -1,50 +1,3 @@
-
-/*********************************************************************
- *  ROSArduinoBridge
- 
-    A set of simple serial commands to control a differential drive
-    robot and receive back sensor and odometry data. Default 
-    configuration assumes use of an Arduino Mega + Pololu motor
-    controller shield + Robogaia Mega Encoder shield.  Edit the
-    readEncoder() and setMotorSpeed() wrapper functions if using 
-    different motor controller or encoder method.
-
-    Created for the Pi Robot Project: http://www.pirobot.org
-    and the Home Brew Robotics Club (HBRC): http://hbrobotics.org
-    
-    Authors: Patrick Goebel, James Nugen
-
-    Inspired and modeled after the ArbotiX driver by Michael Ferguson
-    
-    Software License Agreement (BSD License)
-
-    Copyright (c) 2012, Patrick Goebel.
-    All rights reserved.
-
-    Redistribution and use in source and binary forms, with or without
-    modification, are permitted provided that the following conditions
-    are met:
-
-     * Redistributions of source code must retain the above copyright
-       notice, this list of conditions and the following disclaimer.
-     * Redistributions in binary form must reproduce the above
-       copyright notice, this list of conditions and the following
-       disclaimer in the documentation and/or other materials provided
-       with the distribution.
-
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-    COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- *  POSSIBILITY OF SUCH DAMAGE.
- *********************************************************************/
 #include <Arduino.h>
 #include "Follow_line.hpp"
 #include "Speed_read.hpp"
@@ -53,7 +6,6 @@
 #include "control.hpp"
 #include "SoC.h"
 #include "../../include/commands.h"
-#include "AGV_controller.h"
 
 
 
@@ -61,15 +13,15 @@
 #define PID_rate 30
 #define PID_interval 1000/PID_rate
 
-PID_CLASS motorL(0.5, 1.5, 0.09, LEFT); 
-PID_CLASS motorR(0.5, 1.5, 0.09, RIGHT);
+PID_CLASS motorL(1, 0, 0, LEFT); 
+PID_CLASS motorR(1, 0, 0, RIGHT);
 
 /* Stop the robot if it hasn't received a movement command
    in this number of milliseconds */
 #define AUTO_STOP_INTERVAL 5000 //2000
 long lastMotorCommand = AUTO_STOP_INTERVAL;
 
-long next_PID = 0;
+unsigned long next_PID = 0;
 void check() {
   bitWrite(state, 0, digitalRead(7));
   bitWrite(state, 1, digitalRead(8));
@@ -98,6 +50,72 @@ long t, t_prev = 0;
 float deltaT = 0;
 long lastTime = 0;
 
+// Constants
+const float targetRPM = 100.0;
+const float testDuration = 5.0; // seconds
+const float sampleTime = 0.1;   // seconds
+const int samples = testDuration / sampleTime;
+
+PID_CLASS pid(1, 0, 0, RIGHT);
+
+// Ranges to search (adjust for finer tuning)
+float Kp_vals[] = {2, 3, 4};
+float Ki_vals[] = {0};
+float Kd_vals[] = {0};
+
+void autoTunePID() {
+  float bestError = 999999;
+  float bestKp = 0, bestKi = 0, bestKd = 0;
+
+  Serial.println("Starting auto-tune...");
+
+  // Kickstart the motor
+  moving = 1;
+  pid.set_input(targetRPM);
+  for (float Kp : Kp_vals) {
+    for (float Ki : Ki_vals) {
+      for (float Kd : Kd_vals) {
+        pid.set_PID(Kp, Kd, Ki);
+        pid.reset_PID();
+        
+        
+        float totalError = 0;
+
+        for (int i = 0; i < samples; i++) {
+          local_RPM(sampleTime);
+          pid.do_PID();
+          delay(sampleTime * 1000);
+
+          float currentRPM = get_speed_rpm(LEFT);
+          float error = abs(currentRPM - targetRPM);
+          totalError += error;
+        }
+
+        Serial.print("Kp: "); Serial.print(Kp);
+        Serial.print(", Ki: "); Serial.print(Ki);
+        Serial.print(", Kd: "); Serial.print(Kd);
+        Serial.print(", Error: "); Serial.println(totalError);
+
+        set_motor(CCW, 0, CW, 0);
+        delay(1000);
+
+        if (totalError < bestError) {
+          bestError = totalError;
+          bestKp = Kp;
+          bestKi = Ki;
+          bestKd = Kd;
+        }
+      }
+    }
+  }
+
+  Serial.println("Best tuning:");
+  Serial.print("Kp: "); Serial.println(bestKp);
+  Serial.print("Ki: "); Serial.println(bestKi);
+  Serial.print("Kd: "); Serial.println(bestKd);
+}
+
+
 /* Clear the current command parameters */
 void resetCommand() {
   cmd = '\0';
@@ -109,32 +127,39 @@ void resetCommand() {
   index = 0;
 }
 
+
 /* Run a command.  Commands are defined in commands.h */
 void runCommand() {
   int i = 0;
   char *p = argv1;
   char *str;
-  int pid_args[4];
+  double pid_args[4];
   arg1 = atoi(argv1);
   arg2 = atoi(argv2);
   
   switch(cmd) {
+  case 't':
+    moving = 1;
+    autoTunePID(); // Start auto-tuning
+    moving = 0;
+  break;
   // Read encoder terminal command
   case READ_ENCODERS:
-    Serial.print(read_encoder(LEFT));
-    Serial.print(" ");
-    Serial.println(read_encoder(RIGHT));
-    Serial.println(reverse_L);
-    Serial.print(" ");
-    Serial.println(reverse_R);
-    break;
-  case RESET_ENCODERS:
-  reset_encoder(LEFT);
-  reset_encoder(RIGHT);
-  resetPID();
-  Serial.println("OK");
+    Serial.print("Count L: "); Serial.print(countL_i);
+    Serial.print(", Count R: "); Serial.println(countR_i);
+    Serial.print("Raw Speed L (p/s): "); Serial.print(speed_left);
+    Serial.print(", R: "); Serial.println(speed_right);
+    Serial.print("RPM L: "); Serial.print(get_speed_rpm(LEFT));
+    Serial.print(", R: "); Serial.println(get_speed_rpm(RIGHT));
   break;
-  // Set motor speeds terminal command
+  case RESET_ENCODERS:
+    reset_encoder(LEFT);
+    reset_encoder(RIGHT);
+    motorL.reset_PID();
+    motorR.reset_PID();
+    Serial.println("OK");
+  break;
+    // Set motor speeds terminal command
   case MOTOR_SPEEDS:
     /* Reset the auto stop timer */
     lastMotorCommand = millis();
@@ -148,7 +173,7 @@ void runCommand() {
     motorL.set_input(arg1);
     motorR.set_input(arg2);
     Serial.println("OK"); 
-    break;
+  break;
 
   case MOTOR_RAW_PWM:
     /* Reset the auto stop timer */
@@ -158,21 +183,21 @@ void runCommand() {
     moving = 0; // Sneaky way to temporarily disable the PID
     setMotorSpeeds(arg1, arg2);
     Serial.println("OK"); 
-    break;
+  break;
 
   case UPDATE_PID:
     while ((str = strtok_r(p, ":", &p)) != NULL) {
-      if(i < 2) {
+      if(i < 3) {
           pid_args[i] = atof(str);
           switch(i) {
             case 0:
               Serial.print("Kp: ");
               Serial.println(pid_args[i]);
-              break;
+            break;
             case 1:
               Serial.print("Kd: ");
               Serial.println(pid_args[i]);
-              break;
+            break;
             case 2:
               Serial.print("Ki: ");
               Serial.println(pid_args[i]);
@@ -213,7 +238,8 @@ void setup() {
   pinMode(SV2, OUTPUT);
   ina219.begin();
   ina219.linearCalibrate(ina219Reading_mA, extMeterReading_mA);
-  resetPID();
+  motorL.reset_PID();
+  motorR.reset_PID();
 }
 
 
@@ -221,16 +247,7 @@ void loop() {
   // Get current time in uS
   t = micros();  
 
-  // Do PID for all motors with fixed interval
-  if (millis() > next_PID) {
-    deltaT = ((double)(t - t_prev)) / 1.0e3;
-    t_prev = t;
-    local_RPM(deltaT);
-    motorL.do_PID();
-    motorR.do_PID();
-    next_PID += PID_interval;
   
-  }
   check();
   
 
@@ -274,33 +291,43 @@ void loop() {
     }
   }
 
-  switch (state) {
-  case 7:
-    stopp();
-    break;
-  case 6:
-    // Serial.println("Straight");
-    straight(120,120);
-    break;
-  case 5:
-    // Serial.println("Back");
-    back(100,100);
-    break;
-  case 4:
-    // Serial.println("Left");
-    left(70,70);
-    break;
-  case 3:
-    // Serial.println("Right");
-    right(70,70);
-    break;
-  case 0:
-    follow_line();
-    break;
-  default:
-    stopp();
-    break;
+  // Do PID for all motors with fixed interval
+  if (millis() > next_PID) {
+    deltaT = ((double)(t - t_prev)) / 1.0e6;  // convert to seconds
+    t_prev = t;
+    local_RPM(deltaT);
+    motorL.do_PID();
+    motorR.do_PID();
+    next_PID += PID_interval;
+  
   }
+  // switch (state) {
+  // case 7:
+  //   stopp();
+  //   break;
+  // case 6:
+  //   // Serial.println("Straight");
+  //   straight(120,120);
+  //   break;
+  // case 5:
+  //   // Serial.println("Back");
+  //   back(100,100);
+  //   break;
+  // case 4:
+  //   // Serial.println("Left");
+  //   left(70,70);
+  //   break;
+  // case 3:
+  //   // Serial.println("Right");
+  //   right(70,70);
+  //   break;
+  // case 0:
+  //   follow_line();
+  //   break;
+  // default:
+  //   stopp();
+  //   break;
+  // }
 
   
 }

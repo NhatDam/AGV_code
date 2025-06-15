@@ -60,9 +60,17 @@ void local_RPM(float deltaT)
     countL = countL_i;
     countR = countR_i;
     }
-  speed_left = (countL_i-countL_prev)/deltaT;
+  speed_left = (((countL_i-countL_prev)/deltaT)/CPR) * 60;
   countL_prev = countL;
-  speed_right = (countR_i-countR_prev)/deltaT;
+  speed_right = (((countR_i-countR_prev)/deltaT)/CPR) * 60;
   countR_prev = countR;
 
+}
+
+float get_speed_rpm(int wheel) {
+  if (wheel == LEFT) {
+    return speed_left;
+  } else {
+    return speed_right;
+  }
 }

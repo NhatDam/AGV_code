@@ -49,7 +49,7 @@ void setEachMotorSpeed(int wheel, int spd) {
       if      (reverse_L == 0) { digitalWrite(FR2, CCW);analogWrite(SV2, spd); }
       else if (reverse_L == 1) { digitalWrite(FR2, CW);analogWrite(SV2, spd); }
     }
-    else /*if (wheel == RIGHT) //no need for condition*/ {
+    else if (wheel == RIGHT) {
       if      (reverse_R == 0) { digitalWrite(FR1, CW);analogWrite(SV1, spd); }
       else if (reverse_R == 1) { digitalWrite(FR1, CCW);analogWrite(SV1, spd); }
     }
