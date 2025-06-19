@@ -1,5 +1,6 @@
 #include "Follow_line.hpp"
-
+PID_CLASS motorL(0.5, 1.5, 0.09, LEFT); 
+PID_CLASS motorR(0.5, 1.5, 0.09, RIGHT);
 // Define following line function
 void follow_line() {
   switch (count_on()){
@@ -28,9 +29,13 @@ void PID() {
   lastError = error;
 
   if (powerDifference < 0) {
-    set_motor(CCW, maxSpeed - powerDifference, CW, maxSpeed);
+    // set_motor(CCW, maxSpeed - powerDifference, CW, maxSpeed);
+    motorL.set_input(maxSpeed - powerDifference);
+    motorR.set_input(maxSpeed);
   } else {
-    set_motor(CCW, maxSpeed, CW, maxSpeed + powerDifference);
+    // set_motor(CCW, maxSpeed, CW, maxSpeed + powerDifference);
+    motorL.set_input(maxSpeed);
+    motorR.set_input(maxSpeed + powerDifference);
   }
 }
 

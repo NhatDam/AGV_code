@@ -1,20 +1,16 @@
 #include <Arduino.h>
 #include "Follow_line.hpp"
 #include "Speed_read.hpp"
-#include "pid.hpp"
 #include "GPIO.h"
 #include "control.hpp"
 #include "SoC.h"
 #include "../../include/commands.h"
 
-
-
 // Set PID rate as 30 times per loop
 #define PID_rate 30
 #define PID_interval 1000/PID_rate
 
-PID_CLASS motorL(0.5, 1.5, 0.09, LEFT); 
-PID_CLASS motorR(0.5, 1.5, 0.09, RIGHT);
+
 
 /* Stop the robot if it hasn't received a movement command
    in this number of milliseconds */
@@ -203,7 +199,46 @@ void loop() {
 
   
   check();
-  
+  switch (state) {
+  case 7:
+    stopp();
+    break;
+  case 6:
+    // Serial.println("Straight");
+    // straight(120,120);
+    moving = 1;
+    motorL.set_input(30);
+    motorR.set_input(30);
+    break;
+  case 5:
+    // Serial.println("Back");
+    // back(100,100);
+    moving = 1;
+    motorL.set_input(-50);
+    motorR.set_input(-50);
+    break;
+  case 4:
+    // Serial.println("Left");
+    // left(70,70);
+    moving = 1;
+    motorL.set_input(-50);
+    motorR.set_input(50);
+    break;
+  case 3:
+    // Serial.println("Right");
+    // right(70,70);
+    moving = 1;
+    motorL.set_input(50);
+    motorR.set_input(-50);
+    break;
+  case 0:
+    moving = 1;
+    follow_line();
+    break;
+  // default:
+  //   stopp();
+  //   break;
+  }
 
   while (Serial.available() > 0) {
     
@@ -244,8 +279,8 @@ void loop() {
       }
     }
   }
-    Serial.print(">RPM L: "); Serial.println(get_speed_rpm(LEFT));
-    Serial.print(">RPM R: "); Serial.println(get_speed_rpm(RIGHT));
+    // Serial.print(">RPM L: "); Serial.println(get_speed_rpm(LEFT));
+    // Serial.print(">RPM R: "); Serial.println(get_speed_rpm(RIGHT));
   // Do PID for all motors with fixed interval
   if (millis() > next_PID) {
     deltaT = ((double)(t - t_prev)) / 1.0e6;  // convert to seconds
@@ -256,33 +291,7 @@ void loop() {
     next_PID += PID_interval;
   
   }
-  // switch (state) {
-  // case 7:
-  //   stopp();
-  //   break;
-  // case 6:
-  //   // Serial.println("Straight");
-  //   straight(120,120);
-  //   break;
-  // case 5:
-  //   // Serial.println("Back");
-  //   back(100,100);
-  //   break;
-  // case 4:
-  //   // Serial.println("Left");
-  //   left(70,70);
-  //   break;
-  // case 3:
-  //   // Serial.println("Right");
-  //   right(70,70);
-  //   break;
-  // case 0:
-  //   follow_line();
-  //   break;
-  // default:
-  //   stopp();
-  //   break;
-  // }
+  
 
   
 }
