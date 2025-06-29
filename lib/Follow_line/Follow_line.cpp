@@ -1,6 +1,6 @@
 #include "Follow_line.hpp"
-PID_CLASS motorL(0.5, 1.5, 0.09, LEFT); 
-PID_CLASS motorR(0.5, 1.5, 0.09, RIGHT);
+PID_CLASS motorL(2, 2, 0.1, LEFT); 
+PID_CLASS motorR(2, 2, 0.1, RIGHT);
 // Define following line function
 void follow_line() {
   switch (count_on()){

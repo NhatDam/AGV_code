@@ -16,7 +16,7 @@
    in this number of milliseconds */
 #define AUTO_STOP_INTERVAL 5000 //2000
 long lastMotorCommand = AUTO_STOP_INTERVAL;
-
+int jetson_input = 20;
 unsigned long next_PID = 0;
 void check() {
   bitWrite(state, 0, digitalRead(7));
@@ -82,6 +82,9 @@ void runCommand() {
   arg2 = atoi(argv2);
   
   switch(cmd) {
+  case 'z':
+    jetson_input = arg1;
+    Serial.println("OK");
   case 't':
     Serial.print("Actual Speed Left: ");
     Serial.println(motorL.actualSpeed);
@@ -95,12 +98,12 @@ void runCommand() {
     Serial.println(motorL.get_output());
   // Read encoder terminal command
   case READ_ENCODERS:
-    Serial.print("Count L: "); Serial.print(countL_i);
-    Serial.print(", Count R: "); Serial.println(countR_i);
-    Serial.print("Raw Speed L (p/s): "); Serial.print(speed_left);
-    Serial.print(", R: "); Serial.println(speed_right);
-    Serial.print("RPM L: "); Serial.print(get_speed_rpm(LEFT));
-    Serial.print(", R: "); Serial.println(get_speed_rpm(RIGHT));
+    Serial.print(read_encoder(LEFT));
+    Serial.print(" ");
+    Serial.println(read_encoder(RIGHT));
+    Serial.println(reverse_L);
+    Serial.print(" ");
+    Serial.println(reverse_R);
   break;
   case RESET_ENCODERS:
     reset_encoder(LEFT);
@@ -201,43 +204,45 @@ void loop() {
   check();
   switch (state) {
   case 7:
+    moving = 0;
     stopp();
     break;
   case 6:
     // Serial.println("Straight");
     // straight(120,120);
     moving = 1;
-    motorL.set_input(30);
-    motorR.set_input(30);
+    motorL.set_input(jetson_input);
+    motorR.set_input(jetson_input);
     break;
   case 5:
     // Serial.println("Back");
     // back(100,100);
     moving = 1;
-    motorL.set_input(-50);
-    motorR.set_input(-50);
+    motorL.set_input(-jetson_input);
+    motorR.set_input(-jetson_input);
     break;
   case 4:
     // Serial.println("Left");
     // left(70,70);
     moving = 1;
-    motorL.set_input(-50);
-    motorR.set_input(50);
+    motorL.set_input(-jetson_input);
+    motorR.set_input(jetson_input);
     break;
   case 3:
     // Serial.println("Right");
     // right(70,70);
     moving = 1;
-    motorL.set_input(50);
-    motorR.set_input(-50);
+    motorL.set_input(jetson_input);
+    motorR.set_input(-jetson_input);
     break;
   case 0:
     moving = 1;
     follow_line();
     break;
-  // default:
-  //   stopp();
-  //   break;
+  default:
+    moving = 0;
+    stopp();
+    break;
   }
 
   while (Serial.available() > 0) {
@@ -246,7 +251,7 @@ void loop() {
     chr = Serial.read();
 
     // Terminate a command with a CR
-    if (chr == '\'') {
+    if (chr == '\r') {
       if (arg == 1) argv1[index] = '\0';
       else if (arg == 2) argv2[index] = '\0';
       runCommand();
@@ -281,6 +286,9 @@ void loop() {
   }
     // Serial.print(">RPM L: "); Serial.println(get_speed_rpm(LEFT));
     // Serial.print(">RPM R: "); Serial.println(get_speed_rpm(RIGHT));
+    // Serial.print(">P: "); Serial.println(motorL.Kp);
+    // Serial.print(">I: "); Serial.println(motorL.Ki);
+    // Serial.print(">D: "); Serial.println(motorL.Kd);
   // Do PID for all motors with fixed interval
   if (millis() > next_PID) {
     deltaT = ((double)(t - t_prev)) / 1.0e6;  // convert to seconds
