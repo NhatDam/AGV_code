@@ -229,7 +229,7 @@ void loop() {
     chr = Serial.read();
 
     // Terminate a command with a CR
-    if (chr == '\'') {
+    if (chr == '\r') {
       if (arg == 1) argv1[index] = '\0';
       else if (arg == 2) argv2[index] = '\0';
       runCommand();
