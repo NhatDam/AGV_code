@@ -1,8 +1,16 @@
 #include "Follow_line.hpp"
 PID_CLASS motorL(2, 2, 0.1, LEFT); 
 PID_CLASS motorR(2, 2, 0.1, RIGHT);
+boolean flag1 = 1;
+int count_plant = 0;
+long current_time = 0;
+int prev_detected = 0; // Added to track previous state of marker detection
+int marked_plant[8] = {0, 0, 1, 0, 1, 0, 1, 1}; // 1 = sicked, 0 = healthy
+boolean light_on = 0;
+boolean agv_halted = false;
 // Define following line function
-void follow_line() {
+void follow_line(long t) {
+  
   switch (count_on()){
   // The AGV stops when detecting no magnetic line
   case 0:
@@ -10,16 +18,88 @@ void follow_line() {
     break;
   // Or else it keeps following line using PID
   default:
+   if (!light_on && t >= 3000000)
+   {
     PID ();
+   }
   }
 }
 
+
+void UVC(long time){
+  int left_pin_1 = 1-digitalRead(input_pin[0]);
+  int left_pin_2 = 1-digitalRead(input_pin[1]);
+  int right_pin_1 = 1-digitalRead(input_pin[14]);
+  int right_pin_2 = 1-digitalRead(input_pin[15]);
+  // Read the magnetic line sensor
+  // for (int i = 0; i < 16; i++) {
+  //   input_array2[i] = 1 - digitalRead(input_pin[i]);
+  // }
+
+  // Start condition: AGV detects both left and right markers
+  if ((left_pin_1 == 1 || left_pin_2 == 1) && (right_pin_1 == 1 || right_pin_2 == 1)) {
+    count_plant = 0;
+  }
+
+  // End condition: AGV sees only left marker
+  
+
+  
+    int current_detected = (left_pin_1 == 1 || left_pin_2 == 1) ? 1 : 0;
+
+    if (current_detected == 1 && prev_detected == 0) {
+      // Rising edge detected → count new plant section
+      count_plant++;
+
+      if (count_plant>0 && count_plant < 9) {
+        if (marked_plant[count_plant-1] == 1) {
+          if (light_on == 0)
+          {
+            agvHalt();
+            digitalWrite(15, HIGH); // UVC light ON
+            light_on = 1;
+            current_time = time;
+          }
+        } else {
+          digitalWrite(15, LOW);  // UVC light OFF
+          
+        }
+      }
+    }
+    if(((time - current_time) >=5000000)&& light_on == 1){
+            agvResume();
+            light_on = 0;
+            digitalWrite(15, LOW);  // UVC light OFF
+          }
+    // Update previous state
+    prev_detected = current_detected;
+}
+void agvResume() {
+  agv_halted = false;
+  Serial.println("Resume");
+}
+
+void agvHalt() {
+  // Stop PWM output
+  stopp();
+  Serial.println("Halted");
+  // Reset PID integrators
+  motorL.reset_PID();
+  motorR.reset_PID();
+
+  // Set target RPM to zero
+  motorL.set_input(0);
+  motorR.set_input(0);
+
+  // Optional: set a "halted" flag to block PID updates
+  agv_halted = true;
+}
 // PID algorithm
 void PID() {
   // Define PID parameters
   float integral = 0;
-  float Kp = 0.18; //old value 0.08
-  float Kd = 0.01; //old value 0.0001
+  float Kp = 0.1; //old value 0.08
+  float Kd = 2.5; //old value 0.0001
   float Ki = 0.001;
   // Extract the error from the position difference of magnetic line
   error = sensor_position();
@@ -43,7 +123,7 @@ void PID() {
 int count_on() {
   count1 = 0;
   // Sensor has 16 bits of output - LOW is ON - HIGH is OFF
-  for (int i = 0; i < 16; i++) {
+  for (int i = 2; i < 14; i++) {
     if (!digitalRead(input_pin[i])) { 
       count1++;
     }
@@ -71,16 +151,16 @@ int sensor_position() {
     0,
     0
   };
-  for (int i = 0; i < 16; i++) {
+  for (int i = 2; i < 14; i++) {
     input_array[i] = 1 - digitalRead(input_pin[i]);
   }
   position_value = 0;
   int numer = 0;
   int denom = 0;
-  for (int i = 0; i < 16; i++) {
+  for (int i = 2; i < 14; i++) {
     numer += input_array[i] * sensorweight[i]; //  Calculates the position of the sensor array over the line by weighted average method. The weights
     denom += input_array[i]; //  are assigned as per sensorWeight[]
   }  
-  position_value = 700 - (numer / denom); // Leftmost is -800 and rightmost is 700
+  position_value = 550 - (numer / denom); // Leftmost is -750 and rightmost is 750
   return position_value;
 }

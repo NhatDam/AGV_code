@@ -29,6 +29,7 @@ void left(float speed_left, float speed_right) {
 void stopp() {
   set_motor(CCW, 0, CW, 0);
 }
+
 void initMotorController()
 {
 
