@@ -76,13 +76,11 @@ void UVC(long time){
 }
 void agvResume() {
   agv_halted = false;
-  Serial.println("Resume");
 }
 
 void agvHalt() {
   // Stop PWM output
   stopp();
-  Serial.println("Halted");
   // Reset PID integrators
   motorL.reset_PID();
   motorR.reset_PID();

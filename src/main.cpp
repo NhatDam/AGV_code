@@ -12,12 +12,7 @@
 #define PID_interval 1000/PID_rate
 #define safe_interval 100
 
-unsigned char data[4]={};
-float safeThreshold = 800.0;      // stop if below this
-float resumeThreshold = 900.0;    // resume if above this
-float filteredDistance=0;
-bool stopped = false;
-float distance;
+
 
 
 
@@ -217,9 +212,7 @@ void setup() {
 
 void loop() {
   // Get current time in uS
-  t = micros();  
-  // Sonar
-  
+  t = micros();    
 
   UVC(t);
   
@@ -313,6 +306,13 @@ void loop() {
     // Serial.print(">D: "); Serial.println(motorL.Kd);
   // Do PID for all motors with fixed interval
  
+  if (!digitalRead(49))
+  {
+    agvHalt();
+  }
+  else if(!light_on){
+    agvResume();
+  }
   
     
   if (millis() > next_PID) {
@@ -323,38 +323,7 @@ void loop() {
       motorL.do_PID();
       motorR.do_PID();
     }
-
-    
-    // Serial.println(filteredDistance);
     next_PID += PID_interval;
   }
-  if(millis()>next_safety){
-    do{
-     for(int i=0;i<4;i++)
-     {
-       data[i]=Serial2.read();
-     }
-    }while(Serial2.read()==0xff);
-
-    Serial2.flush();
-
-    if (data[0] == 0xFF) {
-    int sum = (data[0] + data[1] + data[2]) & 0xFF;
-    if (sum == data[3]) {
-        distance=(data[1]<<8)+data[2];
-        // Simple low-pass filter (weighted average)
-        filteredDistance = (filteredDistance * 0.7) + (distance * 0.3);  
-        Serial.println(filteredDistance);
-        if ((!stopped) && ((filteredDistance > 0.0) && (filteredDistance < safeThreshold))) {
-            agvHalt();
-            stopped = true;
-        } 
-        else if (stopped && (filteredDistance > resumeThreshold)) {
-            agvResume();
-            stopped = false;
-        }
-      }
-    }
-    next_safety += safe_interval;
-  }
+  
 }
