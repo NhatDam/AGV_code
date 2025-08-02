@@ -3,6 +3,7 @@
 #include "GPIO.h"
 #include "../../include/commands.h"
 
+
 #define CW 1
 #define CCW 0
 // Variables and functions declaration
@@ -12,8 +13,9 @@ void right(float speed_left, float speed_right);
 void left(float speed_left, float speed_right);
 void stopp();
 
-extern unsigned char reverse_L;
-extern unsigned char reverse_R;
+
+
+extern int jetson_input;
 extern int moving;
 
 void setMotorSpeeds(int leftSpeed, int rightSpeed);

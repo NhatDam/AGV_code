@@ -3,7 +3,6 @@
 #include "../../include/commands.h"
 #include "Arduino.h"
 #include "util/atomic.h"
-#include "control.hpp"
 #include "SimpleKalmanFilter.h"
 //Declare variables for speed reading
 #define speedPinright 2
@@ -11,8 +10,8 @@
 
 extern volatile long  countL, countL_i, countR, countR_i; 
 extern float speed_left, speed_right;
-// extern float speed_actual_left, speed_actual_right, raw_speed_left, raw_speed_right;
-
+extern unsigned char reverse_L;
+extern unsigned char reverse_R;
 
 //The motor has 5 pole pairs and 3 Hall sensor phases
 // const int motorPolePairs = 5 ; // Double check P = 4
@@ -26,7 +25,7 @@ void countRightPulses();
 long read_encoder(int wheel);
 void reset_encoder(int wheel);
 void local_RPM(float deltaT);
-float get_speed_rpm(int wheel);
+float get_speed_rad_per_sec(int wheel);
 #endif
 
 

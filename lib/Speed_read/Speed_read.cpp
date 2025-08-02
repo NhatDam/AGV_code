@@ -1,6 +1,6 @@
 #include "Speed_read.hpp"
 
-
+#define RPM_TO_RAD_PER_SEC  0.10472
 float speed_left = 0, speed_right = 0;
 // Define parameters to calculate the speed
 volatile long  countL = 0, countL_i =0, countR = 0, countR_i =0;
@@ -77,10 +77,10 @@ void local_RPM(float deltaT)
     }
 }
 
-float get_speed_rpm(int wheel) {
+float get_speed_rad_per_sec(int wheel) {
   if (wheel == LEFT) {
-    return speed_left;
+    return speed_left * RPM_TO_RAD_PER_SEC;
   } else {
-    return speed_right;
+    return speed_right* RPM_TO_RAD_PER_SEC ;
   }
 }

@@ -2,11 +2,12 @@
 #define PID_HPP
 
 #include <Arduino.h>
-#include "control.hpp"
 #include "Speed_read.hpp"
-
+#include "control.hpp"
 #define MOTOR1 1
 #define MOTOR2 2
+
+extern boolean agv_halted;
 class PID_CLASS {
 public:
     // PID gains
@@ -33,5 +34,9 @@ public:
     void set_PID(double kp, double kd, double ki);
     
 };
-
+extern PID_CLASS motorL; 
+extern PID_CLASS motorR;
+extern boolean agv_halted;
+void agvHalt();
+void agvResume();
 #endif // PID_HPP

@@ -5,7 +5,7 @@
 
 PID_CLASS::PID_CLASS(double kp, double kd, double ki, int motor) : Kp(kp), Ki(ki), Kd(kd),Motor(motor) { }
 boolean status = 0;
-
+boolean agv_halted = false;
 void PID_CLASS::calculate()
 {
   // Read the feedback data of motor current speed (RPM)
@@ -102,3 +102,21 @@ void PID_CLASS::do_PID()
   this->calculate();
 }
 
+void agvResume() {
+  agv_halted = false;
+}
+
+void agvHalt() {
+  // Stop PWM output
+  stopp();
+  // Reset PID integrators
+  motorL.reset_PID();
+  motorR.reset_PID();
+
+  // Set target RPM to zero
+  motorL.set_input(0);
+  motorR.set_input(0);
+
+  // Optional: set a "halted" flag to block PID updates
+  agv_halted = true;
+}

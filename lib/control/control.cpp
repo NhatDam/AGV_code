@@ -1,5 +1,5 @@
 #include "control.hpp"
-
+int jetson_input = 20;
 int moving = 0;
 unsigned char reverse_L = 0;
 unsigned char reverse_R = 0;

@@ -2,10 +2,9 @@
 #include "Follow_line.hpp"
 #include "Speed_read.hpp"
 #include "GPIO.h"
-#include "control.hpp"
 #include "SoC.h"
 #include "../../include/commands.h"
-
+#include"Esp_control.hpp"
 
 // Set PID rate as 30 times per loop
 #define PID_rate 30
@@ -20,15 +19,10 @@
    in this number of milliseconds */
 #define AUTO_STOP_INTERVAL 5000 //2000
 long lastMotorCommand = AUTO_STOP_INTERVAL;
-int jetson_input = 20;
+
 unsigned long next_PID = 0;
 unsigned long next_safety = 0;
-void check() {
-  bitWrite(state, 0, digitalRead(7));
-  bitWrite(state, 1, digitalRead(8));
-  bitWrite(state, 2, digitalRead(9));
-}
-int state;
+
 // A pair of varibles to help parse serial commands 
 int arg = 0;
 int index = 0;
@@ -85,12 +79,6 @@ void runCommand() {
   double pid_args[4];
   arg1 = atoi(argv1);
   arg2 = atoi(argv2);
-  Serial.print(read_encoder(LEFT));
-  Serial.print(" ");
-  Serial.println(read_encoder(RIGHT));
-  Serial.println(reverse_L);
-  Serial.print(" ");
-  Serial.println(reverse_R);
   // switch(cmd) {
   // case 'z':
   //   jetson_input = arg1;
@@ -216,96 +204,47 @@ void loop() {
 
   UVC(t);
   
-  check();
-  switch (state) {
-  case 7:
-    moving = 0;
-    stopp();
-    break;
-  case 6:
-    // Serial.println("Straight");
-    // straight(120,120);
-    moving = 1;
-    motorL.set_input(jetson_input);
-    motorR.set_input(jetson_input);
-    break;
-  case 5:
-    // Serial.println("Back");
-    // back(100,100);
-    moving = 1;
-    motorL.set_input(-jetson_input);
-    motorR.set_input(-jetson_input);
-    break;
-  case 4:
-    // Serial.println("Left");
-    // left(70,70);
-    moving = 1;
-    motorL.set_input(-jetson_input);
-    motorR.set_input(jetson_input);
-    break;
-  case 3:
-    // Serial.println("Right");
-    // right(70,70);
-    moving = 1;
-    motorL.set_input(jetson_input);
-    motorR.set_input(-jetson_input);
-    break;
-  case 0:
-    moving = 1;
-    follow_line(t);
-    break;
-  default:
-    moving = 0;
-    stopp();
-    break;
-  }
-
-  while (Serial.available() > 0) {
+  ESP_Control(t);
+  // while (Serial.available() > 0) {
     
-    // Read the next character
-    chr = Serial.read();
+  //   // Read the next character
+  //   chr = Serial.read();
 
-    // Terminate a command with a CR
-    if (chr == '\r') {
-      if (arg == 1) argv1[index] = '\0';
-      else if (arg == 2) argv2[index] = '\0';
-      runCommand();
-      resetCommand();
-    }
-    // Use spaces to delimit parts of the command
-    else if (chr == ' ') {
-      // Step through the arguments
-      if (arg == 0) arg = 1;
-      else if (arg == 1)  {
-        argv1[index] = '\0';
-        arg = 2;
-        index = 0;
-      }
-      continue;
-    }
-    else {
-      if (arg == 0) {
-        // The first arg is the single-letter command
-        cmd = chr;
-      }
-      else if (arg == 1) {
-        // Subsequent arguments can be more than one character
-        argv1[index] = chr;
-        index++;
-      }
-      else if (arg == 2) {
-        argv2[index] = chr;
-        index++;
-      }
-    }
-  }
-    // Serial2.print(">RPM L: "); Serial2.println(get_speed_rpm(LEFT));
-    // Serial2.print(">RPM R: "); Serial2.println(get_speed_rpm(RIGHT));
-    // Serial.print(">P: "); Serial.println(motorL.Kp);
-    // Serial.print(">I: "); Serial.println(motorL.Ki);
-    // Serial.print(">D: "); Serial.println(motorL.Kd);
-  // Do PID for all motors with fixed interval
- 
+  //   // Terminate a command with a CR
+  //   if (chr == '\r') {
+  //     if (arg == 1) argv1[index] = '\0';
+  //     else if (arg == 2) argv2[index] = '\0';
+  //     runCommand();
+  //     resetCommand();
+  //   }
+  //   // Use spaces to delimit parts of the command
+  //   else if (chr == ' ') {
+  //     // Step through the arguments
+  //     if (arg == 0) arg = 1;
+  //     else if (arg == 1)  {
+  //       argv1[index] = '\0';
+  //       arg = 2;
+  //       index = 0;
+  //     }
+  //     continue;
+  //   }
+  //   else {
+  //     if (arg == 0) {
+  //       // The first arg is the single-letter command
+  //       cmd = chr;
+  //     }
+  //     else if (arg == 1) {
+  //       // Subsequent arguments can be more than one character
+  //       argv1[index] = chr;
+  //       index++;
+  //     }
+  //     else if (arg == 2) {
+  //       argv2[index] = chr;
+  //       index++;
+  //     }
+  //   }
+  // }
+
   if (!digitalRead(49))
   {
     agvHalt();
@@ -318,7 +257,9 @@ void loop() {
   if (millis() > next_PID) {
     deltaT = ((double)(t - t_prev)) / 1.0e6;  // convert to seconds
     t_prev = t;
-    local_RPM(deltaT);
+    local_RPM(deltaT);Serial.print(get_speed_rad_per_sec(LEFT));
+    Serial.print(" ");
+    Serial.println(get_speed_rad_per_sec(RIGHT));
     if(!agv_halted){
       motorL.do_PID();
       motorR.do_PID();

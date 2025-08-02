@@ -7,7 +7,7 @@ long current_time = 0;
 int prev_detected = 0; // Added to track previous state of marker detection
 int marked_plant[8] = {0, 0, 1, 0, 1, 0, 1, 1}; // 1 = sicked, 0 = healthy
 boolean light_on = 0;
-boolean agv_halted = false;
+
 // Define following line function
 void follow_line(long t) {
   
@@ -74,24 +74,7 @@ void UVC(long time){
     // Update previous state
     prev_detected = current_detected;
 }
-void agvResume() {
-  agv_halted = false;
-}
 
-void agvHalt() {
-  // Stop PWM output
-  stopp();
-  // Reset PID integrators
-  motorL.reset_PID();
-  motorR.reset_PID();
-
-  // Set target RPM to zero
-  motorL.set_input(0);
-  motorR.set_input(0);
-
-  // Optional: set a "halted" flag to block PID updates
-  agv_halted = true;
-}
 // PID algorithm
 void PID() {
   // Define PID parameters
