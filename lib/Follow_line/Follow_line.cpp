@@ -1,11 +1,12 @@
 #include "Follow_line.hpp"
+
 PID_CLASS motorL(2, 2, 0.1, LEFT); 
 PID_CLASS motorR(2, 2, 0.1, RIGHT);
 boolean flag1 = 1;
 int count_plant = 0;
 long current_time = 0;
 int prev_detected = 0; // Added to track previous state of marker detection
-int marked_plant[8] = {0, 0, 1, 0, 1, 0, 1, 1}; // 1 = sicked, 0 = healthy
+int marked_plant[MAX_SIZE] = {0}; // 1 = sicked, 0 = healthy
 boolean light_on = 0;
 
 // Define following line function
@@ -14,7 +15,8 @@ void follow_line(long t) {
   switch (count_on()){
   // The AGV stops when detecting no magnetic line
   case 0:
-    stopp ();
+    // Serial.println("Halted Follow");
+    stopp();
     break;
   // Or else it keeps following line using PID
   default:
@@ -55,19 +57,25 @@ void UVC(long time){
         if (marked_plant[count_plant-1] == 1) {
           if (light_on == 0)
           {
+            // Serial.println("Light ON");
+            
+            // Serial.println("Halted UVC");
             agvHalt();
             digitalWrite(15, HIGH); // UVC light ON
             light_on = 1;
             current_time = time;
           }
         } else {
-          digitalWrite(15, LOW);  // UVC light OFF
+          
+          digitalWrite(15, LOW);
+          // Serial.println(count_plant);  // UVC light OFF
           
         }
       }
     }
-    if(((time - current_time) >=5000000)&& light_on == 1){
+    if(((time - current_time) >=10000000)&& light_on == 1){
             agvResume();
+            marked_plant[count_plant-1] = 0;
             light_on = 0;
             digitalWrite(15, LOW);  // UVC light OFF
           }

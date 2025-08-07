@@ -103,10 +103,12 @@ void PID_CLASS::do_PID()
 }
 
 void agvResume() {
+  // Serial.println("Resume");
   agv_halted = false;
 }
 
 void agvHalt() {
+  
   // Stop PWM output
   stopp();
   // Reset PID integrators
