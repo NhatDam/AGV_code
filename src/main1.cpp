@@ -10,13 +10,13 @@ DFRobot_INA219_IIC ina219(&Wire,INA219_I2C_ADDRESS4);
 
 // Revise the following two paramters according to actula reading of the INA219 and the multimeter
 // for linearly calibration
-// float ina219Reading_mA = 1920;
-// float extMeterReading_mA = 1900;
+float ina219Reading_mA = 1920;
+float extMeterReading_mA = 1900;
 /*Mới thêm vô để đây*/
 // ===== 5‑s status report state =====
-// unsigned long lastStatusTime = 0;   // ms
-// float  powerSum_W      = 0;         // integrate P = V·I
-// uint16_t powerSamples  = 0;         // number of P samples
+unsigned long lastStatusTime = 0;   // ms
+float  powerSum_W      = 0;         // integrate P = V·I
+uint16_t powerSamples  = 0;         // number of P samples
 
 
 void setup() {
@@ -37,21 +37,21 @@ void setup() {
   pinMode(SV1, OUTPUT);
   pinMode(SV2, OUTPUT);
   ina219.begin();
-  // ina219.linearCalibrate(ina219Reading_mA, extMeterReading_mA);
+  ina219.linearCalibrate(ina219Reading_mA, extMeterReading_mA);
 
 }
 
-//  static unsigned long lastT = millis();
+ static unsigned long lastT = millis();
 
 void loop() {
   
 
 
  // main1.cpp
-//  unsigned long now = millis();
-//  if (lastT == 0) lastT = now;   
-//  float deltaT = (now - lastT) * 1000.0f;
-//  lastT = now;
+ unsigned long now = millis();
+ if (lastT == 0) lastT = now;   
+ float deltaT = (now - lastT) * 1000.0f;
+ lastT = now;
   Calculate_V_and_A(ina219);
   Calculate_SoC(voltage);
 //   Calculate_SoC(deltaT,current); // update SoC based on voltage
@@ -74,10 +74,10 @@ void loop() {
     // Serial.print(F("[POW CONSUMPT] "));
     // Serial.print(avgPower_W, 2);      Serial.println(F("W,  "));
 
-    // // reset for next 5‑s window
-    // lastStatusTime = millis();
-    // powerSum_W     = 0;
-    // powerSamples   = 0;
+    // reset for next 5‑s window
+    lastStatusTime = millis();
+    powerSum_W     = 0;
+    powerSamples   = 0;
 }
 
 
