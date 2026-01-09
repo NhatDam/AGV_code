@@ -67,6 +67,12 @@ void runCommand(long t) {
     isFollowLine = true;
     // Serial.println("AUTOMATED ON");
     break;
+  case UV_ON:
+    digitalWrite(15, HIGH);
+    break;
+  case UV_OFF:
+    digitalWrite(15, LOW);
+    break;
   case MARK_PLANT:
     int i = arg1-1;
     if(marked_plant[i] == 0){
@@ -77,7 +83,6 @@ void runCommand(long t) {
     break;
   case RESET_PLANT:
     count_plant = 0;
-  default:
     break;
   }
 }
