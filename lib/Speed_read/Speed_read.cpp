@@ -1,76 +1,86 @@
-#include <Speed_read.h>
-// Pins that attached to motor drivers to read speed
-const int speedPinleft = 21; 
-const int speedPinright = 20; 
+#include "Speed_read.hpp"
 
-// Define parameters to calculate time elapsed 
-unsigned long t, tprev = 0;
-float deltaT = 0;
-long lastTime = 0;
-
+#define RPM_TO_RAD_PER_SEC  0.10472
+float speed_left = 0, speed_right = 0;
 // Define parameters to calculate the speed
-volatile long countL = 0, countL_i =0, countR = 0, countR_i =0;
-float speed_actual_left = 0, speed_actual_right= 0, raw_speed_left= 0, raw_speed_right= 0;
-volatile long countL_prev=0, countR_prev=0;
+volatile long  countL = 0, countL_i =0, countR = 0, countR_i =0;
+volatile long  countL_prev = 0, countR_prev = 0;
+
+SimpleKalmanFilter motorL_filter(1, 1, 0.01);
+SimpleKalmanFilter motorR_filter(1, 1, 0.01);
 
 // Define function to count pulses from left motor driver
 void countLeftPulses() {
-  int L = digitalRead(speedPinleft);
-    if (L>0)
-    {
-      countL_i++;
-    }
-    else
-    {
-      countL_i--;
-    }
+  if(reverse_L == 0) countL_i++;
+  else if(reverse_L == 1) countL_i--;
 }
 
 // Define function to count pulses from right motor driver
 void countRightPulses() {
-  int R = digitalRead(speedPinright);
-    if (R>0)
-    {
-      countR_i++;
-    }
-    else
-    {
-      countR_i--;
-    }
+  if(reverse_R == 0) 
+  {
+    countR_i++;
+  }
+  else if(reverse_R == 1){
+    countR_i--;
+  } 
+
 }
 
-
 // Calculate RPM every second
-void print_RPM(){
+long read_encoder(int wheel){
 
-  // Using atomic_block to safely access the variables by stop interrupt and re-activate it
+  //Using atomic_block to safely access the variables by stop interrupt and re-activate it
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
     countL = countL_i;
     countR = countR_i;
     }
-  
-  // Calculate the speed in Counts/second
-  raw_speed_left = (countL-countL_prev)/deltaT;
-  countL_prev=countL;
-  raw_speed_right = (countR-countR_prev)/deltaT;
-  countR_prev=countR;
-
-  //Convert the speed to Revolutions/minute and print it out
-  speed_actual_left = raw_speed_left/(pulsesPerRevolution*gearRatio)*0.075; // m/s
-  if (speed_actual_left > 0.125)
+  if(wheel == LEFT)
   {
-    speed_actual_left = 0.125;
+    return countL_i;
   }
-  Serial.print("Left Motor RPM: ");
-  Serial.println(speed_actual_left,3);
-
-  speed_actual_right = raw_speed_right/(pulsesPerRevolution*gearRatio)*0.075; // m/s
-  if (speed_actual_right > 0.125)
+  else 
   {
-    speed_actual_right = 0.125;
+    return countR_i;
   }
-  Serial.print("Right Motor RPM: ");
-  Serial.println(speed_actual_right,3);
-  Serial.println("-------------------");
+}
 
+void reset_encoder(int wheel)
+{
+  if(wheel== LEFT)
+  {
+    countL_i = 0;
+  }
+  else 
+  {
+    countR_i = 0;
+  }
+}
+
+void local_RPM(float deltaT)
+{
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
+    countL = countL_i;
+    countR = countR_i;
+    }
+  speed_left = motorL_filter.updateEstimate((((countL_i-countL_prev)/deltaT)/CPR) * 60);
+  countL_prev = countL;
+  if(speed_left < 1 && speed_left > -1)
+    {
+        speed_left = 0;
+    }
+  speed_right = motorR_filter.updateEstimate((((countR_i-countR_prev)/deltaT)/CPR) * 60);
+  countR_prev = countR;
+    if(speed_right < 1 && speed_right > -1)
+    {
+        speed_right = 0;
+    }
+}
+
+float get_speed_rad_per_sec(int wheel) {
+  if (wheel == LEFT) {
+    return speed_left * RPM_TO_RAD_PER_SEC;
+  } else {
+    return speed_right* RPM_TO_RAD_PER_SEC ;
+  }
 }

@@ -9,7 +9,7 @@ int SV1 = 11;
 int SV2 = 10;
 int position_value = 0;
 int error, lastError;
-int maxSpeed = 50;
+int maxSpeed = 20;
 int rotateSpeed = 25;
 int count1 = 0;
 byte input_value = 0b0000000000000000;
@@ -30,12 +30,32 @@ int input_pin[] = {
   A3,
   4,
   5,
-  2
+  6
 };
+int input_array[] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  };
 
 // Divide 16 bits of input from the magnetic sensor into 16 different equal-distributed values starting from 0 to 1500
 const int sensorweight[] = {
   0, // leftmost the sensor
+  0,
+  0,
   100,
   200,
   300,
@@ -47,8 +67,24 @@ const int sensorweight[] = {
   900,
   1000,
   1100,
-  1200,
-  1300,
-  1400,
-  1500 // rightmost of the sensor
+  0,
+  0 // rightmost of the sensor
 };
+// const int sensorweight[] = {
+//   0, // leftmost the sensor
+//   100,
+//   200,
+//   300,
+//   400,
+//   500,
+//   600,
+//   700,
+//   800,
+//   900,
+//   1000,
+//   1100,
+//   1200,
+//   1300,
+//   1400,
+//   1500 // rightmost of the sensor
+// };
