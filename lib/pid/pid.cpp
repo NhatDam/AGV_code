@@ -1,34 +1,33 @@
 #include "pid.hpp"
-#include <math.h> 
+#include <math.h>
 
-
-
-PID_CLASS::PID_CLASS(double kp, double kd, double ki, int motor) : Kp(kp), Ki(ki), Kd(kd),Motor(motor) { }
+PID_CLASS::PID_CLASS(double kp, double kd, double ki, int motor) : Kp(kp), Ki(ki), Kd(kd), Motor(motor) {}
 boolean status = 0;
 boolean agv_halted = false;
 void PID_CLASS::calculate()
 {
   // Read the feedback data of motor current speed (RPM)
-  switch(Motor){
-    case LEFT:
+  switch (Motor)
+  {
+  case LEFT:
     this->actualSpeed = speed_left;
     break;
-    case RIGHT:
-    this->actualSpeed =  speed_right;
+  case RIGHT:
+    this->actualSpeed = speed_right;
     break;
   }
   // Sometimes integration is NAN
-  if(isnan(integration))
+  if (isnan(integration))
   {
     integration = 0;
   }
   // Calculate error
   error = inputSpeed - actualSpeed;
-  //http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-tuning-changes/
-  integration = integration + Ki*error;
-  //http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-derivative-kick/
+  // http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-tuning-changes/
+  integration = integration + Ki * error;
+  // http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-derivative-kick/
   double dInput = actualSpeed - last_actual_speed;
-  
+
   // PID calculation
   // Define max RPM and max PWM (based on your test)
   u = (Kp * error - Kd * dInput + integration);
@@ -42,11 +41,12 @@ void PID_CLASS::calculate()
   last_actual_speed = actualSpeed;
 
   // Drive the motor using PID outputs
-  switch(Motor){
-    case 0:
+  switch (Motor)
+  {
+  case 0:
     setEachMotorSpeed(LEFT, u);
     break;
-    default:
+  default:
     setEachMotorSpeed(RIGHT, u);
     break;
   }
@@ -92,23 +92,26 @@ void PID_CLASS::set_PID(double kp, double kd, double ki)
 // Conduct PID calculation process
 void PID_CLASS::do_PID()
 {
-  if(!moving)
+  if (!moving)
   {
-    
-    if(this->last_actual_speed != 0) this->reset_PID();
+
+    if (this->last_actual_speed != 0)
+      this->reset_PID();
     return;
   }
-  
+
   this->calculate();
 }
 
-void agvResume() {
+void agvResume()
+{
   // Serial.println("Resume");
   agv_halted = false;
 }
 
-void agvHalt() {
-  
+void agvHalt()
+{
+
   // Stop PWM output
   stopp();
   // Reset PID integrators

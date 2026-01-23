@@ -4,61 +4,38 @@
 #include "GPIO.h"
 #include "SoC.h"
 #include "../../include/commands.h"
-#include"Esp_control.hpp"
+#include "Esp_control.hpp"
 #include "Safe.hpp"
 
 // Set PID rate as 30 times per loop
 #define PID_rate 30
-#define PID_interval 1000/PID_rate
+#define PID_interval 1000 / PID_rate
 #define safe_interval 100
-
-
-
-
-
-
 
 unsigned long next_PID = 0;
 unsigned long next_safety = 0;
-
-
 
 long t, t_prev = 0;
 float deltaT = 0;
 long lastTime = 0;
 
-// // Constants
-// const float targetRPM = 100.0;
-// const float testDuration = 5.0; // seconds
-// const float sampleTime = 0.1;   // seconds
-// const int samples = testDuration / sampleTime;
-
-
-
-// // Ranges to search (adjust for finer tuning)
-// float Kp_vals[] = {2, 3, 4};
-// float Ki_vals[] = {0};
-// float Kd_vals[] = {0};
-
-
-
-
-
-void setup() {
+void setup()
+{
   Serial.begin(57600);
   Serial2.begin(115200);
 
-  //Declare output pin for control UVC light
+  // Declare output pin for control UVC light
   pinMode(15, OUTPUT);
   // battery_init();
-  for (int a = 0; a < 16; a++) {
+  for (int a = 0; a < 16; a++)
+  {
     pinMode(input_pin[a], INPUT_PULLUP);
   }
 
   pinMode(speedPinleft, INPUT);
   pinMode(speedPinright, INPUT);
 
-  attachInterrupt(digitalPinToInterrupt(speedPinleft), countLeftPulses,RISING);
+  attachInterrupt(digitalPinToInterrupt(speedPinleft), countLeftPulses, RISING);
   attachInterrupt(digitalPinToInterrupt(speedPinright), countRightPulses, RISING);
 
   pinMode(42, INPUT);
@@ -75,30 +52,30 @@ void setup() {
   motorR.reset_PID();
 }
 
-
-void loop() {
+void loop()
+{
   // Get current time in uS
-  t = micros();    
+  t = micros();
 
   UVC(t);
   SAFE();
   ESP_Control(t);
-  if(isFollowLine){
+  if (isFollowLine)
+  {
     moving = 1;
     follow_line(t);
   }
 
-  // SAFE();
-  
-    
-  if (millis() > next_PID) {
-    deltaT = ((double)(t - t_prev)) / 1.0e6;  // convert to seconds
+  if (millis() > next_PID)
+  {
+    deltaT = ((double)(t - t_prev)) / 1.0e6; // convert to seconds
     t_prev = t;
     local_RPM(deltaT);
-    // Serial.print(get_speed_rad_per_sec(LEFT)); 
+    // Serial.print(get_speed_rad_per_sec(LEFT));
     // Serial.print(" ");
     // Serial.println(get_speed_rad_per_sec(RIGHT));
-    if(!agv_halted){
+    if (!agv_halted)
+    {
       motorL.do_PID();
       motorR.do_PID();
     }

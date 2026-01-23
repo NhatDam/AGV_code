@@ -15,23 +15,22 @@ int count1 = 0;
 byte input_value = 0b0000000000000000;
 // Define the input pins for magnetic line sensor
 int input_pin[] = {
-  A15,
-  A14,
-  A13,
-  A12,
-  A11,
-  A10,
-  A9,
-  A8,
-  A7,
-  A6,
-  A5,
-  A4,
-  A3,
-  4,
-  5,
-  6
-};
+    A15,
+    A14,
+    A13,
+    A12,
+    A11,
+    A10,
+    A9,
+    A8,
+    A7,
+    A6,
+    A5,
+    A4,
+    A3,
+    4,
+    5,
+    6};
 int input_array[] = {
     0,
     0,
@@ -48,27 +47,26 @@ int input_array[] = {
     0,
     0,
     0,
-    0
-  };
+    0};
 
 // Divide 16 bits of input from the magnetic sensor into 16 different equal-distributed values starting from 0 to 1500
 const int sensorweight[] = {
-  0, // leftmost the sensor
-  0,
-  0,
-  100,
-  200,
-  300,
-  400,
-  500,
-  600,
-  700,
-  800,
-  900,
-  1000,
-  1100,
-  0,
-  0 // rightmost of the sensor
+    0, // leftmost the sensor
+    0,
+    0,
+    100,
+    200,
+    300,
+    400,
+    500,
+    600,
+    700,
+    800,
+    900,
+    1000,
+    1100,
+    0,
+    0 // rightmost of the sensor
 };
 // const int sensorweight[] = {
 //   0, // leftmost the sensor
