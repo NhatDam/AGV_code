@@ -54,17 +54,17 @@ void runCommand(long t)
       motorL.reset_PID();
       motorR.reset_PID();
       moving = 0;
-      // Serial.println("STOP");
+      Serial.println("STOP");
     }
     else
     {
       moving = 1;
       motorL.set_input(arg1);
       motorR.set_input(arg2);
-      // Serial.print("MOVE ");
-      // Serial.print(arg1);
-      // Serial.print(" ");
-      // Serial.println(arg2);
+      Serial.print("MOVE ");
+      Serial.print(arg1);
+      Serial.print(" ");
+      Serial.println(arg2);
     }
     break;
   case AUTOMATED:

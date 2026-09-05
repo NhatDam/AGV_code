@@ -21,9 +21,8 @@ long lastTime = 0;
 
 void setup()
 {
-  Serial.begin(57600);
+  Serial.begin(9600);
   Serial2.begin(115200);
-
   // Declare output pin for control UVC light
   pinMode(15, OUTPUT);
   // battery_init();
@@ -42,14 +41,17 @@ void setup()
   pinMode(48, INPUT);
   pinMode(47, INPUT);
   pinMode(43, INPUT);
+  // pinMode(22, INPUT); IR 22 and 23 need to be replaced to other pin (TO DO)
+  // pinMode(23, INPUT); For now, 4 IR sensors are enough
   pinMode(FR1, OUTPUT);
   pinMode(FR2, OUTPUT);
   pinMode(SV1, OUTPUT);
   pinMode(SV2, OUTPUT);
-  ina219.begin();
-  ina219.linearCalibrate(ina219Reading_mA, extMeterReading_mA);
+  // ina219.begin();
+  // ina219.linearCalibrate(ina219Reading_mA, extMeterReading_mA);
   motorL.reset_PID();
   motorR.reset_PID();
+  Serial.println("Hello World");
 }
 
 void loop()
@@ -74,6 +76,12 @@ void loop()
     // Serial.print(get_speed_rad_per_sec(LEFT));
     // Serial.print(" ");
     // Serial.println(get_speed_rad_per_sec(RIGHT));
+    
+    for (int i = 0; i < 5; i++)
+    {
+      setMotorSpeeds(5,5);
+    }
+    
     if (!agv_halted)
     {
       motorL.do_PID();
@@ -85,5 +93,5 @@ void loop()
   //   Serial.print(marked_plant[i]);
   //   Serial.print(" ");
   // }
-  // Serial.println(" ");
+  
 }
